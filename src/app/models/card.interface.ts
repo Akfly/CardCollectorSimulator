@@ -3,4 +3,6 @@ export interface Card {
   name: string;
   rarity: string;
   imagePath: string;
+  isSpecial: boolean;
+  releaseDate: string;
 }
