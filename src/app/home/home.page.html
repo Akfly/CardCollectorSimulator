@@ -1,8 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      {{ title }}
-    </ion-title>
+    <ion-title> {{ title }} </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -16,9 +14,9 @@
   <div id="container">
     <ion-item>
       <ion-label>Games</ion-label>
-      <ion-select multiple="true" (ionChange)="onGameSelectionChange($event)">
+      <ion-select (ionChange)="onGameSelectionChange($event)">
         @for (game of games; track game) {
-          <ion-select-option [value]="game">{{ game }}</ion-select-option>
+        <ion-select-option [value]="game">{{ game.name }}</ion-select-option>
         }
       </ion-select>
     </ion-item>
@@ -26,19 +24,22 @@
     <ion-grid>
       <ion-row>
         @for (item of gridItems; track item) {
-          <ion-col size="6">
-            <ion-card>
-              <img [src]="item.image" />
-              <ion-card-content>
-                <ion-card-title>{{ item.name }}</ion-card-title>
-                <p>{{ item.progress }}</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
+        <ion-col size="6">
+          <ion-card>
+            <img [src]="item.image" />
+            <ion-card-content>
+              <ion-card-title>{{ item.name }}</ion-card-title>
+              <p>{{ item.progress }}</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
         }
       </ion-row>
     </ion-grid>
 
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+    <p>
+      Start with Ionic
+      <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a>
+    </p>
   </div>
 </ion-content>
