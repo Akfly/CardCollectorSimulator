@@ -1,0 +1,17 @@
+{
+  "id": 1,
+  "name": "Game 1",
+  "coinName": "Coin 1",
+  "coinImagePath": "path/to/coin1.png",
+  "setList": [
+    {
+      "id": 1,
+      "name": "Set 1",
+      "imagePath": "path/to/set1.png",
+      "cardList": [
+        { "id": 1, "name": "Card 1", "rarity": "Common", "imagePath": "path/to/card1.png" },
+        { "id": 2, "name": "Card 2", "rarity": "Rare", "imagePath": "path/to/card2.png" }
+      ]
+    }
+  ]
+}
