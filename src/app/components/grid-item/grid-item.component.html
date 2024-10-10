@@ -1,7 +1,7 @@
 <ion-card class="grid-item">
   <img class="grid-item__img" [src]="image" />
   <ion-card-content class="grid-item__container">
-    <ion-card-title class="grid-item__title">{{ name }}</ion-card-title>
+    <ion-card-title class="grid-item__title" [innerHTML]="name | rubyText" />
     <p class="grid-item__progress">{{ progress }}</p>
   </ion-card-content>
 </ion-card>
