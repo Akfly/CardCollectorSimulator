@@ -25,13 +25,12 @@
       <ion-row>
         @for (item of gridItems; track item) {
         <ion-col size="6">
-          <ion-card>
-            <img [src]="item.image" />
-            <ion-card-content>
-              <ion-card-title>{{ item.name }}</ion-card-title>
-              <p>{{ item.progress }}</p>
-            </ion-card-content>
-          </ion-card>
+          <app-grid-item
+            (click)="onSetClick(item.id)"
+            [image]="item.image"
+            [name]="item.name"
+            [progress]="item.progress"
+          ></app-grid-item>
         </ion-col>
         }
       </ion-row>

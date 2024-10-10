@@ -10,13 +10,11 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonCard,
-  IonCardContent,
-  IonCardTitle,
   IonSelect,
   IonSelectOption
 } from '@ionic/angular/standalone';
 import { Game } from '../models/game.interface';
+import { GridItemComponent } from '../components/grid-item/grid-item.component';
 
 @Component({
   selector: 'app-home',
@@ -25,9 +23,6 @@ import { Game } from '../models/game.interface';
   standalone: true,
   imports: [
     CommonModule,
-    IonCardTitle,
-    IonCardContent,
-    IonCard,
     IonCol,
     IonRow,
     IonGrid,
@@ -38,14 +33,15 @@ import { Game } from '../models/game.interface';
     IonTitle,
     IonContent,
     IonSelect,
-    IonSelectOption
+    IonSelectOption,
+    GridItemComponent
   ]
 })
 export class HomePage implements OnInit {
-  title: string = 'My game';
+  title: string = 'Card Collector Simulator';
   games: { id: number; name: string }[] = [];
   selectedGame: Game | null = null;
-  gridItems: { image: string; name: string; progress: string }[] = [];
+  gridItems: { id: number; image: string; name: string; progress: string }[] = [];
 
   constructor() {}
 
@@ -79,15 +75,20 @@ export class HomePage implements OnInit {
     }
   }
 
-  updateGridItems() {
+  async updateGridItems() {
     if (this.selectedGame) {
       this.gridItems = this.selectedGame.setList.map(set => ({
-        image: set.imagePath,
+        id: set.id,
+        image: `assets/games/${this.selectedGame?.id}/sets/${set.id}/logo.png`,
         name: set.name,
         progress: `0/${set.cardList.length}`
       }));
     } else {
       this.gridItems = [];
     }
+  }
+
+  onSetClick(setId: number) {
+    console.log(`Set ${setId} clicked`);
   }
 }
