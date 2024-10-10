@@ -2,7 +2,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": "src",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -19,7 +19,15 @@
     "target": "es2022",
     "module": "es2020",
     "lib": ["es2018", "es2019", "dom"],
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "paths": {
+      "@app/*": ["app/*"],
+      "@services/*": ["app/services/*"],
+      "@components/*": ["app/components/*"],
+      "@pages/*": ["app/pages/*"],
+      "@models/*": ["app/models/*"],
+      "@pipes/*": ["app/pipes/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

@@ -1,0 +1,7 @@
+<ion-card class="grid-card">
+  <img class="grid-card__img" [src]="image" />
+  <ion-card-content class="grid-card__text-area">
+    <ion-card-title class="grid-card__title" [innerHTML]="name | rubyText" />
+    <p class="grid-card__quantity">{{ 'x' + quantity }}</p>
+  </ion-card-content>
+</ion-card>

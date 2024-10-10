@@ -1,0 +1,26 @@
+.grid-card {
+  height: 210px;
+  width: 170px;
+
+  position: relative;
+  text-align: center;
+
+  cursor: pointer;
+
+  .grid-card__img {
+    height: 200px;
+  }
+
+  .grid-card__text-area {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .grid-card__title {
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+  }
+}

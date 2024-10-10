@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    @if (this.setData) {
+    <ion-title [innerHTML]="this.setData.name | rubyText" />
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (this.setData) {
+  <ion-button expand="full" (click)="openPack()">Open Pack</ion-button>
+
+  <ion-grid>
+    <ion-row class="card-list justify-content-center">
+      @for (card of this.setData.cardList; track card; let index = $index) {
+      <ion-col size="auto">
+        <app-grid-card [image]="this.cardImages[index]" [name]="card.name" [quantity]="0"></app-grid-card>
+      </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
+  }
+</ion-content>

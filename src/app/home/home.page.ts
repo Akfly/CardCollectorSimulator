@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
@@ -13,8 +14,9 @@ import {
   IonSelect,
   IonSelectOption
 } from '@ionic/angular/standalone';
-import { Game } from '../models/game.interface';
-import { GridItemComponent } from '../components/grid-item/grid-item.component';
+import { Game } from '@models/game.interface';
+import { GridItemComponent } from '@components/grid-item/grid-item.component';
+import { DataService } from '@services/data.service';
 
 @Component({
   selector: 'app-home',
@@ -40,23 +42,20 @@ import { GridItemComponent } from '../components/grid-item/grid-item.component';
 export class HomePage implements OnInit {
   title: string = 'Card Collector Simulator';
   games: { id: number; name: string }[] = [];
-  selectedGame: Game | null = null;
+  selectedGame!: Game;
   gridItems: { id: number; image: string; name: string; progress: string }[] = [];
 
-  constructor() {}
+  constructor(
+    private router: Router,
+    private dataService: DataService
+  ) {}
 
   ngOnInit() {
     this.loadGames();
   }
 
   async loadGames() {
-    try {
-      const response = await fetch('assets/games.json');
-      const data = await response.json();
-      this.games = data;
-    } catch (err) {
-      console.error('Error reading games.json', err);
-    }
+    this.games = await this.dataService.getGameList();
   }
 
   onGameSelectionChange(event: any) {
@@ -65,14 +64,8 @@ export class HomePage implements OnInit {
   }
 
   async loadGameDetails(gameId: number) {
-    try {
-      const response = await fetch(`assets/games/${gameId}.json`);
-      const data = await response.json();
-      this.selectedGame = data;
-      this.updateGridItems();
-    } catch (err) {
-      console.error(`Error reading ${gameId}.json`, err);
-    }
+    this.selectedGame = await this.dataService.getGameDetail(gameId);
+    this.updateGridItems();
   }
 
   async updateGridItems() {
@@ -89,6 +82,7 @@ export class HomePage implements OnInit {
   }
 
   onSetClick(setId: number) {
-    console.log(`Set ${setId} clicked`);
+    const gameId = this.selectedGame.id;
+    this.router.navigate(['/set-info', gameId, setId]);
   }
 }
