@@ -72,7 +72,7 @@ export class SetInfoPage implements OnInit {
     this.setData = this.game.setList.find(set => set.id === this.setId) as GameSet;
 
     this.cardImages = this.setData.cardList.map(
-      card => `assets/games/${this.game.id}/sets/${this.setData.id}/${card.id}.png`
+      card => `assets/games/${this.game.id}/sets/${this.setData.id}/${card.id}.jpg`
     );
   }
 
