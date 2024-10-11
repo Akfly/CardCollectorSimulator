@@ -1,7 +1,7 @@
-<ion-card class="grid-card">
-  <img class="grid-card__img" [class.grid-card__img--none]="quantity === 0" [src]="image" />
+<ion-card class="grid-card" [class.grid-card--none]="isDisabled">
+  <img class="grid-card__img" [class.grid-card__img--none]="isDisabled" [src]="image" />
   <ion-card-content class="grid-card__text-area">
     <ion-card-title class="grid-card__title" [innerHTML]="name | rubyText" />
-    <p class="grid-card__quantity" [class.grid-card__quantity--none]="quantity === 0">{{ 'x' + quantity }}</p>
+    <p class="grid-card__quantity" [class.grid-card__quantity--none]="isDisabled">{{ 'x' + quantity }}</p>
   </ion-card-content>
 </ion-card>

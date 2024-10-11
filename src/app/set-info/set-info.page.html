@@ -20,7 +20,12 @@
     <ion-row class="card-list justify-content-center">
       @for (card of setData.cardList; track card; let index = $index) {
       <ion-col size="auto">
-        <app-grid-card [image]="cardImages[index]" [name]="card.name" [quantity]="0"></app-grid-card>
+        <app-grid-card
+          [image]="cardsData[index].image"
+          [name]="card.name"
+          [quantity]="cardsData[index].quantity"
+          (click)="openCardModal(cardsData[index])"
+        />
       </ion-col>
       }
     </ion-row>

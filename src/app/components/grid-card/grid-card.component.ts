@@ -13,4 +13,8 @@ export class GridCardComponent {
   @Input() image!: string;
   @Input() name!: string;
   @Input() quantity!: number;
+
+  get isDisabled() {
+    return this.quantity === 0;
+  }
 }
