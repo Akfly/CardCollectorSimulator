@@ -1,0 +1,1 @@
+export const SECONDS_TO_NEXT_PACK = 86400;

@@ -1,4 +1,4 @@
-import { GameSet } from '../models/game-set.interface';
+import { GameSet } from '@models/game-set.interface';
 
 export interface Game {
   id: number;

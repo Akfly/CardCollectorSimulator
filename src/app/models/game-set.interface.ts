@@ -1,4 +1,4 @@
-import { Card } from '../models/card.interface';
+import { Card } from '@models/card.interface';
 
 export interface GameSet {
   id: number;

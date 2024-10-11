@@ -12,8 +12,9 @@
 </ion-header>
 
 <ion-content>
-  @if (setData) {
+  @if (setData) { @if (canGetFreePack) {
   <ion-button expand="full" (click)="openPack()">Open Pack</ion-button>
+  }
 
   <ion-grid>
     <ion-row class="card-list justify-content-center">
