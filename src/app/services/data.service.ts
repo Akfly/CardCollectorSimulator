@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Game } from '../models/game.interface';
+import { Preferences } from '@capacitor/preferences';
+import { Game } from '@models/game.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -42,5 +43,13 @@ export class DataService {
     }
 
     return this.gameDetails[gameId];
+  };
+
+  getUserData = async (key: string) => {
+    return (await Preferences.get({ key })).value;
+  };
+
+  saveUserData = async (key: string, value: string) => {
+    await Preferences.set({ key, value });
   };
 }

@@ -3,21 +3,23 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
-    @if (this.setData) {
-    <ion-title [innerHTML]="this.setData.name | rubyText" />
+    @if (setData) {
+    <ion-title [innerHTML]="setData.name | rubyText" />
+    } @if (game) {
+    <app-header-coin [img]="currencyImg" [amount]="userMoney"></app-header-coin>
     }
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  @if (this.setData) {
+  @if (setData) {
   <ion-button expand="full" (click)="openPack()">Open Pack</ion-button>
 
   <ion-grid>
     <ion-row class="card-list justify-content-center">
-      @for (card of this.setData.cardList; track card; let index = $index) {
+      @for (card of setData.cardList; track card; let index = $index) {
       <ion-col size="auto">
-        <app-grid-card [image]="this.cardImages[index]" [name]="card.name" [quantity]="0"></app-grid-card>
+        <app-grid-card [image]="cardImages[index]" [name]="card.name" [quantity]="0"></app-grid-card>
       </ion-col>
       }
     </ion-row>

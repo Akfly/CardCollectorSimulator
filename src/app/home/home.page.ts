@@ -12,10 +12,12 @@ import {
   IonRow,
   IonCol,
   IonSelect,
-  IonSelectOption
+  IonSelectOption,
+  IonImg
 } from '@ionic/angular/standalone';
-import { Game } from '@models/game.interface';
 import { GridItemComponent } from '@components/grid-item/grid-item.component';
+import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
+import { Game } from '@models/game.interface';
 import { DataService } from '@services/data.service';
 
 @Component({
@@ -24,6 +26,7 @@ import { DataService } from '@services/data.service';
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
+    IonImg,
     CommonModule,
     IonCol,
     IonRow,
@@ -36,7 +39,8 @@ import { DataService } from '@services/data.service';
     IonContent,
     IonSelect,
     IonSelectOption,
-    GridItemComponent
+    GridItemComponent,
+    HeaderCoinComponent
   ]
 })
 export class HomePage implements OnInit {
@@ -44,6 +48,8 @@ export class HomePage implements OnInit {
   games: { id: number; name: string }[] = [];
   selectedGame!: Game;
   gridItems: { id: number; image: string; name: string; progress: string }[] = [];
+  currencyImg!: string;
+  userMoney!: number;
 
   constructor(
     private router: Router,
@@ -64,18 +70,38 @@ export class HomePage implements OnInit {
   }
 
   async loadGameDetails(gameId: number) {
-    this.selectedGame = await this.dataService.getGameDetail(gameId);
+    const loadGamePromises: any[] = [
+      this.dataService.getGameDetail(gameId),
+      this.dataService.getUserData(`userMoney-${gameId}`)
+    ];
+    const [game, userMoney] = await Promise.all(loadGamePromises);
+
+    this.selectedGame = game;
+    this.currencyImg = `assets/games/${gameId}/coin.png`;
+    this.userMoney = parseInt(userMoney, 10) || 0;
     this.updateGridItems();
   }
 
   async updateGridItems() {
     if (this.selectedGame) {
-      this.gridItems = this.selectedGame.setList.map(set => ({
-        id: set.id,
-        image: `assets/games/${this.selectedGame?.id}/sets/${set.id}/logo.png`,
-        name: set.name,
-        progress: `0/${set.cardList.length}`
-      }));
+      const quantitiesPromises: any[] = [];
+
+      this.gridItems = this.selectedGame.setList.map(set => {
+        quantitiesPromises.push(this.dataService.getUserData(`setQuantity-${this.selectedGame.id}-${set.id}`));
+
+        return {
+          id: set.id,
+          image: `assets/games/${this.selectedGame.id}/sets/${set.id}/logo.png`,
+          name: set.name,
+          progress: ''
+        };
+      });
+
+      const quantitiesResponse = await Promise.all(quantitiesPromises);
+
+      this.gridItems.forEach((item, index) => {
+        item.progress = `${quantitiesResponse[index] || 0}/${this.selectedGame.setList[index].cardList.length}`;
+      });
     } else {
       this.gridItems = [];
     }

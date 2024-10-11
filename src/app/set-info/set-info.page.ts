@@ -20,7 +20,8 @@ import {
 } from '@ionic/angular/standalone';
 import { GameSet } from '@app/models/game-set.interface';
 import { RubyTextPipe } from '@app/pipes/ruby-text.pipe';
-import { GridCardComponent } from '../components/grid-card/grid-card.component';
+import { GridCardComponent } from '@components/grid-card/grid-card.component';
+import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
 
 @Component({
   selector: 'app-set-info',
@@ -43,7 +44,8 @@ import { GridCardComponent } from '../components/grid-card/grid-card.component';
     IonButtons,
     IonHeader,
     RubyTextPipe,
-    GridCardComponent
+    GridCardComponent,
+    HeaderCoinComponent
   ]
 })
 export class SetInfoPage implements OnInit {
@@ -52,6 +54,8 @@ export class SetInfoPage implements OnInit {
   game!: Game;
   setData!: GameSet;
   cardImages: string[] = [];
+  currencyImg!: string;
+  userMoney!: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -68,7 +72,15 @@ export class SetInfoPage implements OnInit {
   }
 
   async loadData() {
-    this.game = (await this.dataService.getGameDetail(this.gameId)) as Game;
+    const loadDataPromises: any[] = [
+      this.dataService.getGameDetail(this.gameId),
+      this.dataService.getUserData(`userMoney-${this.gameId}`)
+    ];
+    const [game, userMoney] = await Promise.all(loadDataPromises);
+
+    this.game = game;
+    this.currencyImg = `assets/games/${this.gameId}/coin.png`;
+    this.userMoney = parseInt(userMoney, 10) || 0;
     this.setData = this.game.setList.find(set => set.id === this.setId) as GameSet;
 
     this.cardImages = this.setData.cardList.map(
