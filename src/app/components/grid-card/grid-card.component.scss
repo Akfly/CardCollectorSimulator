@@ -10,6 +10,10 @@
   .grid-card__img {
     height: 200px;
     border-radius: 6px;
+
+    &--none {
+      filter: grayscale(1) brightness(0.7);
+    }
   }
 
   .grid-card__text-area {
@@ -23,5 +27,21 @@
     color: white;
     font-size: 15px;
     font-weight: 600;
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+
+  .grid-card__quantity {
+    color: white;
+    font-size: 17px;
+    font-weight: 400;
+
+    position: absolute;
+    bottom: 0.2rem;
+    right: 0.2rem;
+
+    &--none {
+      color: gray;
+    }
   }
 }
