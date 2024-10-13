@@ -6,5 +6,6 @@ export interface GameSet {
   imagePath: string;
   cardList: Card[];
   releaseDate: string;
+  boosterPackImageSizePer: number;
   boosterRatio: { shared?: { total: number; rarities: { [key: string]: number } }; [key: string]: number | any };
 }

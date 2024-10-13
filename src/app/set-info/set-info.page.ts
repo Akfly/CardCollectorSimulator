@@ -26,6 +26,7 @@ import { GridCardComponent } from '@components/grid-card/grid-card.component';
 import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
 import { SECONDS_TO_NEXT_PACK } from '@app/constants/constants';
 import { CardModalComponent } from '@components/card-modal/card-modal.component';
+import { BoosterPackModalComponent } from '@components/booster-pack-modal/booster-pack-modal.component';
 import { Card } from '@models/card.interface';
 
 @Component({
@@ -123,7 +124,15 @@ export class SetInfoPage implements OnInit {
     return await modal.present();
   }
 
-  openPack() {
-    console.log('Opening pack...');
+  async openPack() {
+    const modal = await this.modalController.create({
+      component: BoosterPackModalComponent,
+      componentProps: {
+        setData: this.setData,
+        gameId: this.gameId
+      },
+      cssClass: 'card-modal'
+    });
+    return await modal.present();
   }
 }

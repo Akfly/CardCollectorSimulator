@@ -36,6 +36,11 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
 
+/* Disable text selection for the entire document */
+body {
+  user-select: none;
+}
+
 .card-modal {
   --background: rgba(0, 0, 0, 0.5);
 }
