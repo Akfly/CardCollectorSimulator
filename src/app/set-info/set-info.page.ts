@@ -60,7 +60,7 @@ export class SetInfoPage implements OnInit {
   setId!: number;
   game!: Game;
   setData!: GameSet;
-  cardsData: { image: string; quantity: number }[] = [];
+  cardsData: { id: number; image: string; quantity: number }[] = [];
   currencyImg!: string;
   userMoney!: number;
   lastFreePackDate!: DateTime;
@@ -106,6 +106,7 @@ export class SetInfoPage implements OnInit {
     const cardQuantities = await Promise.all(cardDataPromises);
 
     this.cardsData = this.setData.cardList.map((card, index) => ({
+      id: card.id,
       image: `assets/games/${this.game.id}/sets/${this.setData.id}/${card.id}.jpg`,
       quantity: cardQuantities[index] || 0
     }));
@@ -133,6 +134,17 @@ export class SetInfoPage implements OnInit {
       },
       cssClass: 'card-modal'
     });
-    return await modal.present();
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    const cardDataPromises: any[] = data.cardIdList.map((cardId: number) =>
+      this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setId}-${cardId}`)
+    );
+    const cardQuantities = await Promise.all(cardDataPromises);
+
+    data.cardIdList.forEach((cardId: number, index: number) => {
+      this.cardsData.find(card => card.id === cardId)!.quantity = parseInt(cardQuantities[index] || '0', 10);
+    });
   }
 }

@@ -6,6 +6,7 @@ import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonContent } fro
 import { trigger, state, style, animate, transition, keyframes } from '@angular/animations';
 import { GameSet } from '@app/models/game-set.interface';
 import { Card } from '@app/models/card.interface';
+import { DataService } from '@app/services/data.service';
 
 addIcons({ close });
 
@@ -57,6 +58,7 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
   initialMaxWidth!: string;
   isBoosterPackOpened = false;
   currentCardIndex = 0;
+  cardIdList: number[] = [];
 
   // Properties for swipe functionality
   previousMousePosition: { x?: number; y?: number } = { x: undefined, y: undefined };
@@ -70,7 +72,8 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
     private gestureCtrl: GestureController,
     private el: ElementRef,
     private renderer: Renderer2,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dataService: DataService
   ) {
     addIcons({ close });
   }
@@ -129,6 +132,7 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
       const currentPool = cardsOfCurrentRarities[selectedRarity as string];
       const selectedCard = currentPool[Math.floor(Math.random() * currentPool.length)];
       this.cardImages.push(`assets/games/${this.gameId}/sets/${this.setData.id}/${selectedCard.id}.jpg`);
+      this.cardIdList.push(selectedCard.id);
     }
   }
 
@@ -137,6 +141,7 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
     for (let i = 0; i < this.setData.boosterRatio[rarity]; i++) {
       const selectedCard = cardsOfCurrentRarity[Math.floor(Math.random() * cardsOfCurrentRarity.length)];
       this.cardImages.push(`assets/games/${this.gameId}/sets/${this.setData.id}/${selectedCard.id}.jpg`);
+      this.cardIdList.push(selectedCard.id);
     }
   }
 
@@ -212,6 +217,10 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
       this.animationTriggered[index] = false;
       this.renderer.setStyle(this.currentActiveCard, 'display', 'none');
       this.currentCardIndex++;
+
+      if (this.currentCardIndex >= this.cardImages.length) {
+        this.dismissModal();
+      }
     }
   }
 
@@ -233,10 +242,24 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
   // FUNCTIONALITY METHODS
 
   dismissModal() {
-    this.modalController.dismiss();
+    this.modalController.dismiss({
+      cardIdList: this.cardIdList
+    });
   }
 
-  openBoosterPack() {
+  async openBoosterPack() {
     this.isBoosterPackOpened = true;
+
+    const cardPromises = this.cardIdList.map(cardId =>
+      this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setData.id}-${cardId}`)
+    );
+    const responses = await Promise.all(cardPromises);
+
+    this.cardIdList.forEach((cardId, index) => {
+      this.dataService.saveUserData(
+        `cardQuantity-${this.gameId}-${this.setData.id}-${cardId}`,
+        (parseInt(responses[index] || '0', 10) + 1).toString()
+      );
+    });
   }
 }
