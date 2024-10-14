@@ -130,18 +130,32 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
       });
 
       const currentPool = cardsOfCurrentRarities[selectedRarity as string];
-      const selectedCard = currentPool[Math.floor(Math.random() * currentPool.length)];
-      this.cardImages.push(`assets/games/${this.gameId}/sets/${this.setData.id}/${selectedCard.id}.jpg`);
-      this.cardIdList.push(selectedCard.id);
+
+      if (!this.addRandomCardToBoosterPack(currentPool)) {
+        i--;
+      }
     }
   }
 
   initNormalRarityCards(rarity: string) {
     const cardsOfCurrentRarity = this.setData.cardList.filter(card => card.rarity === rarity);
+
     for (let i = 0; i < this.setData.boosterRatio[rarity]; i++) {
-      const selectedCard = cardsOfCurrentRarity[Math.floor(Math.random() * cardsOfCurrentRarity.length)];
+      if (!this.addRandomCardToBoosterPack(cardsOfCurrentRarity)) {
+        i--;
+      }
+    }
+  }
+
+  addRandomCardToBoosterPack(pool: Card[]): boolean {
+    const selectedCard = pool[Math.floor(Math.random() * pool.length)];
+    if (this.cardIdList.includes(selectedCard.id)) {
+      return false;
+    } else {
       this.cardImages.push(`assets/games/${this.gameId}/sets/${this.setData.id}/${selectedCard.id}.jpg`);
       this.cardIdList.push(selectedCard.id);
+
+      return true;
     }
   }
 
