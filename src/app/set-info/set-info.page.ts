@@ -147,6 +147,11 @@ export class SetInfoPage implements OnInit {
     await modal.present();
     const { data } = await modal.onDidDismiss();
 
+    if (data.cardIdList && this.canGetFreePack) {
+      this.lastFreePackDate = DateTime.now();
+      this.dataService.saveUserData(`lastFreePack-${this.gameId}`, this.lastFreePackDate.toISO() as string);
+    }
+
     const cardDataPromises: any[] = data.cardIdList.map((cardId: number) =>
       this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setId}-${cardId}`)
     );
