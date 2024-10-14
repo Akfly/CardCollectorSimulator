@@ -268,12 +268,23 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
       this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setData.id}-${cardId}`)
     );
     const responses = await Promise.all(cardPromises);
+    let setQuantity = parseInt(
+      (await this.dataService.getUserData(`setQuantity-${this.gameId}-${this.setData.id}`)) || '0',
+      10
+    );
 
     this.cardIdList.forEach((cardId, index) => {
+      const cardQuantity = parseInt(responses[index] || '0', 10);
       this.dataService.saveUserData(
         `cardQuantity-${this.gameId}-${this.setData.id}-${cardId}`,
-        (parseInt(responses[index] || '0', 10) + 1).toString()
+        (cardQuantity + 1).toString()
       );
+
+      if (cardQuantity === 0) {
+        setQuantity++;
+      }
     });
+
+    this.dataService.saveUserData(`setQuantity-${this.gameId}-${this.setData.id}`, setQuantity.toString());
   }
 }

@@ -104,12 +104,21 @@ export class SetInfoPage implements OnInit {
       this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setId}-${card.id}`)
     );
     const cardQuantities = await Promise.all(cardDataPromises);
+    let setQuantity = 0;
 
-    this.cardsData = this.setData.cardList.map((card, index) => ({
-      id: card.id,
-      image: `assets/games/${this.game.id}/sets/${this.setData.id}/${card.id}.jpg`,
-      quantity: cardQuantities[index] || 0
-    }));
+    this.cardsData = this.setData.cardList.map((card, index) => {
+      if (cardQuantities[index]) {
+        setQuantity++;
+      }
+
+      return {
+        id: card.id,
+        image: `assets/games/${this.game.id}/sets/${this.setData.id}/${card.id}.jpg`,
+        quantity: cardQuantities[index] || 0
+      };
+    });
+
+    this.dataService.saveUserData(`setQuantity-${this.gameId}-${this.setData.id}`, setQuantity.toString());
   }
 
   async openCardModal(cardData: { image: string; quantity: number }) {
