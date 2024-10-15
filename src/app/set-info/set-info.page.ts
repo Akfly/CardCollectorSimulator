@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DateTime } from 'luxon';
 import { Game } from '@models/game.interface';
@@ -74,7 +74,8 @@ export class SetInfoPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private dataService: DataService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -107,14 +108,16 @@ export class SetInfoPage implements OnInit {
     let setQuantity = 0;
 
     this.cardsData = this.setData.cardList.map((card, index) => {
-      if (cardQuantities[index]) {
+      const cardQuantity = parseInt(cardQuantities[index] || '0', 10);
+
+      if (cardQuantity) {
         setQuantity++;
       }
 
       return {
         id: card.id,
         image: `assets/games/${this.game.id}/sets/${this.setData.id}/${card.id}.jpg`,
-        quantity: cardQuantities[index] || 0
+        quantity: cardQuantity
       };
     });
 
@@ -137,7 +140,14 @@ export class SetInfoPage implements OnInit {
       },
       cssClass: 'card-modal'
     });
-    return await modal.present();
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data === 'sold') {
+      await this.loadData();
+      this.cdr.markForCheck();
+    }
   }
 
   async openPack() {

@@ -57,7 +57,6 @@ export class CardModalComponent {
 
     if (result?.data) {
       this.performSellCard(result.data as number);
-      this.dismissModal();
     }
   }
 
@@ -67,14 +66,19 @@ export class CardModalComponent {
     const totalEarned = quantity * cardPrice;
     const currentMoney = parseInt((await this.dataService.getUserData(`userMoney-${this.game.id}`)) || '0', 10);
 
-    this.dataService.saveUserData(`userMoney-${this.game.id}`, (currentMoney + totalEarned).toString());
-    this.dataService.saveUserData(
-      `cardQuantity-${this.game.id}-${this.set.id}-${this.card.id}`,
-      (this.totalQuantity - quantity).toString()
-    );
+    const promises = [
+      this.dataService.saveUserData(`userMoney-${this.game.id}`, (currentMoney + totalEarned).toString()),
+      this.dataService.saveUserData(
+        `cardQuantity-${this.game.id}-${this.set.id}-${this.card.id}`,
+        (this.totalQuantity - quantity).toString()
+      )
+    ];
+
+    await Promise.all(promises);
+    this.dismissModal(true);
   }
 
-  dismissModal() {
-    this.modalController.dismiss();
+  dismissModal(isSold = false) {
+    this.modalController.dismiss(isSold ? 'sold' : 'cancel');
   }
 }
