@@ -121,14 +121,20 @@ export class SetInfoPage implements OnInit {
     this.dataService.saveUserData(`setQuantity-${this.gameId}-${this.setData.id}`, setQuantity.toString());
   }
 
-  async openCardModal(cardData: { image: string; quantity: number }) {
+  async openCardModal(cardData: { image: string; quantity: number }, card: Card) {
     if (cardData.quantity <= 0) {
       return;
     }
 
     const modal = await this.modalController.create({
       component: CardModalComponent,
-      componentProps: { image: cardData.image },
+      componentProps: {
+        image: cardData.image,
+        card: card,
+        game: this.game,
+        set: this.setData,
+        totalQuantity: cardData.quantity
+      },
       cssClass: 'card-modal'
     });
     return await modal.present();

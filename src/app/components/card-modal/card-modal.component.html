@@ -1,15 +1,9 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="end">
-      <ion-button (click)="dismissModal()">
-        <ion-icon name="close"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content class="ion-padding card-modal">
+  <ion-button fill="clear" class="card-modal__close-button" (click)="dismissModal()">
+    <ion-icon name="close"></ion-icon>
+  </ion-button>
   <div class="card-modal__content">
     <img class="card-modal__img" [src]="image" />
   </div>
+  <ion-button fill="solid" expand="full" class="card-modal__sell-button" (click)="sellCard()">SELL</ion-button>
 </ion-content>

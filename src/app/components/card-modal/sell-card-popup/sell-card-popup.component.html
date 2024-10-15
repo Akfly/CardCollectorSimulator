@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Sell Card: {{ card.name | rubyText }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label class="sell-card__label" position="stacked">Each card is {{ cardPrice }} {{ game.coinName }}</ion-label>
+    <ion-label class="sell-card__label" position="stacked">Quantity: {{ quantity }}x</ion-label>
+    <ion-label class="sell-card__label" position="stacked"
+      >Total: {{ cardPrice * quantity }} {{ game.coinName }}</ion-label
+    >
+    <ion-range min="1" [max]="totalQuantity" step="1" snaps="true" (ionChange)="onChangeRange($event)"></ion-range>
+  </ion-item>
+  <ion-footer>
+    <ion-button expand="full" (click)="accept()">Accept</ion-button>
+    <ion-button expand="full" color="medium" (click)="dismiss()">Cancel</ion-button>
+  </ion-footer>
+</ion-content>

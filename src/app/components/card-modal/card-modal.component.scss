@@ -5,7 +5,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
+    height: 85%;
+    margin-top: 2em;
   }
 
   &__img {
@@ -13,5 +14,16 @@
     max-height: 100%;
     border-radius: 12px;
     filter: drop-shadow(4px 6px 8px black);
+  }
+
+  &__close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: white;
+  }
+
+  &__sell-button {
+    margin-top: 2em;
   }
 }

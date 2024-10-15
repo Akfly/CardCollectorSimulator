@@ -24,7 +24,7 @@
           [image]="cardsData[index].image"
           [name]="card.name"
           [quantity]="cardsData[index].quantity"
-          (click)="openCardModal(cardsData[index])"
+          (click)="openCardModal(cardsData[index], card)"
         />
       </ion-col>
       }
