@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DateTime } from 'luxon';
 import { Game } from '@models/game.interface';
@@ -57,7 +57,7 @@ import { PromoModalComponent } from '@components/promo-modal/promo-modal.compone
   ],
   providers: [ModalController]
 })
-export class SetInfoPage implements OnInit {
+export class SetInfoPage implements OnInit, OnDestroy {
   gameId!: number;
   setId!: number;
   game!: Game;
@@ -67,6 +67,8 @@ export class SetInfoPage implements OnInit {
   userMoney!: number;
   lastFreePackDate!: DateTime;
   availablePromoCards!: { card: Card; percentage: number }[];
+  timeToNextPack!: string;
+  timerInterval!: ReturnType<typeof setInterval>;
 
   get canGetFreePack() {
     const diff = DateTime.now().diff(this.lastFreePackDate, ['seconds']).seconds;
@@ -92,6 +94,11 @@ export class SetInfoPage implements OnInit {
     });
 
     this.loadData();
+    this.startPackInterval();
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.timerInterval);
   }
 
   async loadData() {
@@ -153,6 +160,14 @@ export class SetInfoPage implements OnInit {
     this.availablePromoCards = this.availablePromoCards.filter(
       (data, index) => parseInt(promoQuantities[index] || '0', 10) === 0
     );
+  }
+
+  startPackInterval() {
+    this.timerInterval = setInterval(() => {
+      const nextDate = this.lastFreePackDate.plus({ seconds: SECONDS_TO_NEXT_PACK });
+      const diff = nextDate.diff(DateTime.now(), ['seconds']);
+      this.timeToNextPack = diff.toFormat('hh:mm:ss');
+    }, 1000);
   }
 
   async openCardModal(cardData: { image: string; quantity: number }, card: Card) {

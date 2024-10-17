@@ -14,6 +14,8 @@
 <ion-content>
   @if (setData) { @if (canGetFreePack && !isPromoSet) {
   <ion-button expand="full" (click)="openPack()">Open Pack</ion-button>
+  } @else if (!canGetFreePack) {
+  <ion-button expand="full" [disabled]="true">Next Pack in: {{timeToNextPack}}</ion-button>
   }
 
   <ion-grid>
