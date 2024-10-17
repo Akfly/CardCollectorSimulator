@@ -12,7 +12,7 @@
 </ion-header>
 
 <ion-content>
-  @if (setData) { @if (canGetFreePack) {
+  @if (setData) { @if (canGetFreePack && !isPromoSet) {
   <ion-button expand="full" (click)="openPack()">Open Pack</ion-button>
   }
 

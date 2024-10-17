@@ -28,6 +28,8 @@ import { SECONDS_TO_NEXT_PACK } from '@app/constants/constants';
 import { CardModalComponent } from '@components/card-modal/card-modal.component';
 import { BoosterPackModalComponent } from '@components/booster-pack-modal/booster-pack-modal.component';
 import { Card } from '@models/card.interface';
+import { unlerp } from '@utils/utils';
+import { PromoModalComponent } from '@components/promo-modal/promo-modal.component';
 
 @Component({
   selector: 'app-set-info',
@@ -64,11 +66,16 @@ export class SetInfoPage implements OnInit {
   currencyImg!: string;
   userMoney!: number;
   lastFreePackDate!: DateTime;
+  availablePromoCards!: { card: Card; percentage: number }[];
 
   get canGetFreePack() {
     const diff = DateTime.now().diff(this.lastFreePackDate, ['seconds']).seconds;
 
     return diff >= SECONDS_TO_NEXT_PACK;
+  }
+
+  get isPromoSet() {
+    return this.setId === 0;
   }
 
   constructor(
@@ -122,6 +129,30 @@ export class SetInfoPage implements OnInit {
     });
 
     this.dataService.saveUserData(`setQuantity-${this.gameId}-${this.setData.id}`, setQuantity.toString());
+
+    const promoSet = this.game.setList.find(set => set.id === 0);
+    const filteredPromos = promoSet?.cardList.filter(card => {
+      return (
+        DateTime.fromISO(card.releaseDate) >= DateTime.fromISO(this.setData.previousSetDate) &&
+        DateTime.fromISO(card.releaseDate) <= DateTime.fromISO(this.setData.releaseDate)
+      );
+    });
+    this.availablePromoCards =
+      (filteredPromos || []).map(card => {
+        const initDate = DateTime.fromISO(this.setData.previousSetDate).toSeconds();
+        const finalDate = DateTime.fromISO(this.setData.releaseDate).toSeconds();
+        const cardDate = DateTime.fromISO(card.releaseDate).toSeconds();
+
+        return { card, percentage: unlerp(initDate, finalDate, cardDate) };
+      }) || [];
+
+    const promoPromises = this.availablePromoCards.map(data =>
+      this.dataService.getUserData(`cardQuantity-${this.gameId}-0-${data.card.id}`)
+    );
+    const promoQuantities = await Promise.all(promoPromises);
+    this.availablePromoCards = this.availablePromoCards.filter(
+      (data, index) => parseInt(promoQuantities[index] || '0', 10) === 0
+    );
   }
 
   async openCardModal(cardData: { image: string; quantity: number }, card: Card) {
@@ -136,7 +167,8 @@ export class SetInfoPage implements OnInit {
         card: card,
         game: this.game,
         set: this.setData,
-        totalQuantity: cardData.quantity
+        totalQuantity: cardData.quantity,
+        isPromoSet: this.isPromoSet
       },
       cssClass: 'card-modal'
     });
@@ -175,6 +207,40 @@ export class SetInfoPage implements OnInit {
 
     data.cardIdList.forEach((cardId: number, index: number) => {
       this.cardsData.find(card => card.id === cardId)!.quantity = parseInt(cardQuantities[index] || '0', 10);
+    });
+
+    const totalCards = this.cardsData.reduce((acc, card) => acc + (card.quantity > 0 ? 1 : 0), 0);
+    const totalCardPercentage = totalCards / this.cardsData.length;
+    const promosToGet = this.availablePromoCards.filter(promo => promo.percentage <= totalCardPercentage);
+
+    if (promosToGet.length) {
+      this.earnPromos(promosToGet);
+    }
+  }
+
+  async earnPromos(promosToGet: { card: Card; percentage: number }[]) {
+    let setQuantity = parseInt((await this.dataService.getUserData(`setQuantity-${this.gameId}-0`)) || '0', 10);
+
+    promosToGet.forEach(promo => {
+      setQuantity++;
+      this.dataService.saveUserData(`cardQuantity-${this.gameId}-0-${promo.card.id}`, '1');
+    });
+
+    this.dataService.saveUserData(`setQuantity-${this.gameId}-o`, setQuantity.toString());
+
+    this.cdr.markForCheck();
+
+    promosToGet.forEach(async promo => {
+      const modal = await this.modalController.create({
+        component: PromoModalComponent,
+        componentProps: {
+          image: `assets/games/${this.game.id}/sets/0/${promo.card.id}.jpg`
+        },
+        cssClass: 'card-modal'
+      });
+
+      await modal.present();
+      await modal.onDidDismiss();
     });
   }
 }

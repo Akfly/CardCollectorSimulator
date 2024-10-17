@@ -32,6 +32,7 @@ export class CardModalComponent {
   @Input() game!: Game;
   @Input() set!: GameSet;
   @Input() totalQuantity!: number;
+  @Input() isPromoSet!: boolean;
 
   constructor(
     private modalController: ModalController,
@@ -63,7 +64,7 @@ export class CardModalComponent {
   async performSellCard(quantity: number) {
     const cardType = this.card.isSpecial ? 'special' : 'normal';
     const cardPrice = this.game.cardPrices[cardType][this.card.rarity];
-    const totalEarned = quantity * cardPrice;
+    const totalEarned = quantity * (isNaN(cardPrice) ? 0 : cardPrice);
     const currentMoney = parseInt((await this.dataService.getUserData(`userMoney-${this.game.id}`)) || '0', 10);
 
     const promises = [

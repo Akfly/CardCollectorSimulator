@@ -1,0 +1,30 @@
+.promo-modal {
+  --background: rgba(0, 0, 0, 0.2);
+
+  &__content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 85%;
+    margin-top: 2em;
+    flex-direction: column;
+  }
+
+  &__img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 12px;
+    filter: drop-shadow(4px 6px 8px black);
+  }
+
+  &__close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: white;
+  }
+
+  &__sell-button {
+    margin-top: 2em;
+  }
+}
