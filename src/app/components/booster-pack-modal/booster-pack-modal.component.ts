@@ -93,8 +93,8 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
     this.initialMaxWidth = `${this.setData.boosterPackImageSizePer}%`;
 
     Object.keys(this.setData.boosterRatio).forEach(key => {
-      if (key === 'shared') {
-        this.initSharedRarityCards();
+      if (key.includes('shared')) {
+        this.initSharedRarityCards(this.setData.boosterRatio[key]);
       } else {
         this.initNormalRarityCards(key);
       }
@@ -108,9 +108,7 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
    * Each of the rarities has a number, this number represents the weight of the rarity in the shared pool.
    * The higher the number, the more probably those cards will be selected.
    */
-  initSharedRarityCards() {
-    const sharedInfo = this.setData.boosterRatio.shared;
-
+  initSharedRarityCards(sharedInfo: { total: number; rarities: { [key: string]: number } }) {
     if (!sharedInfo) {
       return;
     }
