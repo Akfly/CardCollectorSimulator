@@ -25,6 +25,7 @@
         [style.zIndex]="cardImages.length - index"
         [style.maxWidth]="!isBoosterPackOpened ? initialMaxWidth : '100%'"
         [style.opacity]="!isBoosterPackOpened ? 0 : 1"
+        [style.borderRadius]="setData.borderRadius"
         [class.active]="index === currentCardIndex"
         [@cardAnimation]="{
           value: isBoosterPackOpened ? 'opened' : 'closed',

@@ -13,6 +13,7 @@ export class GridCardComponent {
   @Input() image!: string;
   @Input() name!: string;
   @Input() quantity!: number;
+  @Input() borderRadius!: string;
 
   get isDisabled() {
     return this.quantity === 0;
