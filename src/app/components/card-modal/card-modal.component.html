@@ -3,7 +3,7 @@
     <ion-icon name="close"></ion-icon>
   </ion-button>
   <div class="card-modal__content">
-    <img class="card-modal__img" [src]="image" />
+    <img class="card-modal__img" [src]="image" [style.borderRadius]="set.borderRadius" />
   </div>
   @if (!isPromoSet) {
     <ion-button fill="solid" expand="full" class="card-modal__sell-button" (click)="sellCard()">SELL</ion-button>
