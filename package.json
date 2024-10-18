@@ -29,6 +29,7 @@
     "@capacitor/keyboard": "6.0.2",
     "@capacitor/preferences": "^6.0.2",
     "@capacitor/status-bar": "6.0.1",
+    "@ionic-native/app-version": "^5.36.0",
     "@ionic/angular": "^8.0.0",
     "ionicons": "^7.2.1",
     "luxon": "^3.5.0",
