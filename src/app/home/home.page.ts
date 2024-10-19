@@ -13,12 +13,15 @@ import {
   IonCol,
   IonSelect,
   IonSelectOption,
-  IonImg
+  IonImg,
+  IonButton,
+  IonFooter
 } from '@ionic/angular/standalone';
 import { GridItemComponent } from '@components/grid-item/grid-item.component';
 import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
 import { Game } from '@models/game.interface';
 import { DataService } from '@services/data.service';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-home',
@@ -26,6 +29,8 @@ import { DataService } from '@services/data.service';
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
+    IonFooter,
+    IonButton,
     IonImg,
     CommonModule,
     IonCol,
@@ -50,6 +55,7 @@ export class HomePage implements OnInit {
   gridItems: { id: number; image: string; name: string; progress: string }[] = [];
   currencyImg!: string;
   userMoney!: number;
+  versionNumber!: string;
 
   constructor(
     private router: Router,
@@ -58,6 +64,16 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.loadGames();
+    this.getVersionNumber();
+  }
+
+  async getVersionNumber() {
+    try {
+      const appInfo = await App.getInfo();
+      this.versionNumber = `v${appInfo.version}.${appInfo.build}`;
+    } catch {
+      this.versionNumber = 'Web version';
+    }
   }
 
   async loadGames() {
