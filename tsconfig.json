@@ -27,7 +27,8 @@
       "@pages/*": ["app/pages/*"],
       "@models/*": ["app/models/*"],
       "@pipes/*": ["app/pipes/*"],
-      "@utils/*": ["app/utils/*"]
+      "@utils/*": ["app/utils/*"],
+      "@constants/*": ["app/constants/*"]
     }
   },
   "angularCompilerOptions": {

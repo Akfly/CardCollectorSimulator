@@ -52,4 +52,29 @@ export class DataService {
   saveUserData = async (key: string, value: string) => {
     await Preferences.set({ key, value });
   };
+
+  exportUserData = async () => {
+    const { keys } = await Preferences.keys();
+
+    const preferences = await Promise.all(
+      keys.map(async key => {
+        const { value } = await Preferences.get({ key });
+        return { [key]: value };
+      })
+    );
+
+    const preferencesObject = preferences.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+
+    return JSON.stringify(preferencesObject);
+  };
+
+  importUserData = async (data: { [key: string]: string }) => {
+    await Preferences.clear();
+
+    await Promise.all(
+      Object.keys(data).map(async key => {
+        await Preferences.set({ key, value: data[key] });
+      })
+    );
+  };
 }

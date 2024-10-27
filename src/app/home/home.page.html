@@ -1,5 +1,10 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="openSettings()">
+        <ion-icon name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title> {{ title }} </ion-title>
     @if (selectedGame) {
     <app-header-coin [img]="currencyImg" [amount]="userMoney"></app-header-coin>
