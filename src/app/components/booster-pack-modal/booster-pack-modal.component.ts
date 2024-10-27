@@ -8,8 +8,6 @@ import { GameSet } from '@app/models/game-set.interface';
 import { Card } from '@app/models/card.interface';
 import { DataService } from '@app/services/data.service';
 
-addIcons({ close });
-
 const MIN_SWIPE_DISTANCE = 150;
 
 @Component({

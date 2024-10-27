@@ -15,13 +15,17 @@ import {
   IonSelectOption,
   IonImg,
   IonButton,
-  IonFooter
+  IonFooter,
+  IonButtons,
+  IonIcon
 } from '@ionic/angular/standalone';
 import { GridItemComponent } from '@components/grid-item/grid-item.component';
 import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
 import { Game } from '@models/game.interface';
 import { DataService } from '@services/data.service';
 import { App } from '@capacitor/app';
+import { addIcons } from 'ionicons';
+import { settingsOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +33,8 @@ import { App } from '@capacitor/app';
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
+    IonIcon,
+    IonButtons,
     IonFooter,
     IonButton,
     IonImg,
@@ -60,7 +66,9 @@ export class HomePage implements OnInit {
   constructor(
     private router: Router,
     private dataService: DataService
-  ) {}
+  ) {
+    addIcons({ settingsOutline });
+  }
 
   ngOnInit() {
     this.loadGames();
@@ -126,5 +134,9 @@ export class HomePage implements OnInit {
   onSetClick(setId: number) {
     const gameId = this.selectedGame.id;
     this.router.navigate(['/set-info', gameId, setId]);
+  }
+
+  openSettings() {
+    this.router.navigate(['/settings']);
   }
 }

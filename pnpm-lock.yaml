@@ -59,9 +59,15 @@ importers:
       '@capacitor/status-bar':
         specifier: 6.0.1
         version: 6.0.1(@capacitor/core@6.1.2)
+      '@ionic-native/file-chooser':
+        specifier: ^5.36.0
+        version: 5.36.0(@ionic-native/core@5.36.0(rxjs@7.8.1))(rxjs@7.8.1)
       '@ionic/angular':
         specifier: ^8.0.0
         version: 8.3.3(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10))(@angular/forms@18.2.8(@angular/common@18.2.8(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10))(rxjs@7.8.1))(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10))(@angular/platform-browser@18.2.8(@angular/animations@18.2.8(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10)))(@angular/common@18.2.8(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10))(rxjs@7.8.1))(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10)))(rxjs@7.8.1))(@angular/router@18.2.8(@angular/common@18.2.8(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10))(rxjs@7.8.1))(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10))(@angular/platform-browser@18.2.8(@angular/animations@18.2.8(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10)))(@angular/common@18.2.8(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10))(rxjs@7.8.1))(@angular/core@18.2.8(rxjs@7.8.1)(zone.js@0.14.10)))(rxjs@7.8.1))(rxjs@7.8.1)(zone.js@0.14.10)
+      cordova-plugin-filechooser:
+        specifier: ^1.2.0
+        version: 1.2.0
       ionicons:
         specifier: ^7.2.1
         version: 7.4.0
@@ -1485,6 +1491,17 @@ packages:
   '@inquirer/type@2.0.0':
     resolution: {integrity: sha512-XvJRx+2KR3YXyYtPUUy+qd9i7p+GO9Ko6VIIpWlBrpWwXDv8WLFeHTxz35CfQFUiBMLXlGHhGzys7lqit9gWag==}
     engines: {node: '>=18'}
+
+  '@ionic-native/core@5.36.0':
+    resolution: {integrity: sha512-lOrkktadlKYbYf1LrDyAtsu1JnQ0oCCdkOU7iHQ8oXnNOkMwobFfD2m62F1CoOr0u9LIkpYnZSPjng8lZbmbNw==}
+    peerDependencies:
+      rxjs: ^5.5.0 || ^6.5.0
+
+  '@ionic-native/file-chooser@5.36.0':
+    resolution: {integrity: sha512-e8uwc8a+5WTImeEJR1f81V4jYJCtPU8xtENsNR/KZIi1AAfB6Sk949UM+2mdKHAiG48NRqzIxh9x3mQX8MA4PQ==}
+    peerDependencies:
+      '@ionic-native/core': ^5.1.0
+      rxjs: ^5.5.0 || ^6.5.0
 
   '@ionic/angular-toolkit@12.1.1':
     resolution: {integrity: sha512-VgD9pUg2ViI6a0W+8iUs7sGrQ8/1BQH43/ioAqGu/WWsgcnevy9ddTZp0M1MHbeVWaoauwbmNsG/lgNNEZq1hw==}
@@ -2978,6 +2995,9 @@ packages:
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       webpack: ^5.1.0
+
+  cordova-plugin-filechooser@1.2.0:
+    resolution: {integrity: sha512-ycL9ML3wlRQ8wfK7vCG8gobv1f3VIdO52m0LA9mPSzLblbu0AXJs89yCRxZB87+08/V96qBxrmkxMsMmVYu5wA==}
 
   core-js-compat@3.38.1:
     resolution: {integrity: sha512-JRH6gfXxGmrzF3tZ57lFx97YARxCXPaMzPo6jELZhv88pBH5VXpQ+y0znKGlFnzuaihqhLbefxSJxWJMPtfDzw==}
@@ -8284,6 +8304,17 @@ snapshots:
     dependencies:
       mute-stream: 1.0.0
 
+  '@ionic-native/core@5.36.0(rxjs@7.8.1)':
+    dependencies:
+      '@types/cordova': 11.0.3
+      rxjs: 7.8.1
+
+  '@ionic-native/file-chooser@5.36.0(@ionic-native/core@5.36.0(rxjs@7.8.1))(rxjs@7.8.1)':
+    dependencies:
+      '@ionic-native/core': 5.36.0(rxjs@7.8.1)
+      '@types/cordova': 11.0.3
+      rxjs: 7.8.1
+
   '@ionic/angular-toolkit@12.1.1(chokidar@3.6.0)':
     dependencies:
       '@angular-devkit/core': 18.2.9(chokidar@3.6.0)
@@ -10139,6 +10170,8 @@ snapshots:
       schema-utils: 4.2.0
       serialize-javascript: 6.0.2
       webpack: 5.94.0(esbuild@0.23.0)
+
+  cordova-plugin-filechooser@1.2.0: {}
 
   core-js-compat@3.38.1:
     dependencies:

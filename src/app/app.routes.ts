@@ -13,5 +13,9 @@ export const routes: Routes = [
   {
     path: 'set-info/:gameId/:setId',
     loadComponent: () => import('./set-info/set-info.page').then(m => m.SetInfoPage)
+  },
+  {
+    path: 'settings',
+    loadComponent: () => import('./settings/settings.page').then(m => m.SettingsPage)
   }
 ];

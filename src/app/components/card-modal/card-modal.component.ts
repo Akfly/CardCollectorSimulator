@@ -17,8 +17,6 @@ import { Game } from '@models/game.interface';
 import { GameSet } from '@models/game-set.interface';
 import { DataService } from '@services/data.service';
 
-addIcons({ close });
-
 @Component({
   selector: 'app-card-modal',
   templateUrl: './card-modal.component.html',

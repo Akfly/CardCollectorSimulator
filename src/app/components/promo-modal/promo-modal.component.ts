@@ -11,9 +11,6 @@ import {
 } from '@ionic/angular/standalone';
 import { close } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
-import { DataService } from '@services/data.service';
-
-addIcons({ close });
 
 @Component({
   selector: 'app-card-modal',
