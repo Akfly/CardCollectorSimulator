@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { Game } from '@models/game.interface';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +10,47 @@ export class DataService {
   private games!: { id: number; name: string }[];
   private gameDetails: { [key: number]: Game } = {};
 
-  private async loadGames() {
+  private async checkFileExists(path: string): Promise<boolean> {
     try {
-      const response = await fetch('assets/games.json');
-      const data = await response.json();
-      this.games = data;
-    } catch (err) {
-      console.error('Error reading games.json', err);
+      await Filesystem.stat({
+        directory: Directory.Documents,
+        path
+      });
+      return true;
+    } catch (err: any) {
+      if (err.message?.includes('not exist')) {
+        return false;
+      }
+      throw err;
+    }
+  }
+
+  private async loadGames() {
+    const filePath = 'games.json';
+    const fileExists = await this.checkFileExists(filePath);
+
+    try {
+      if (!fileExists) {
+        await Filesystem.writeFile({
+          directory: Directory.Documents,
+          path: filePath,
+          data: JSON.stringify([]),
+          encoding: Encoding.UTF8
+        });
+
+        this.games = [];
+      } else {
+        const result = await Filesystem.readFile({
+          directory: Directory.Documents,
+          path: filePath,
+          encoding: Encoding.UTF8
+        });
+
+        this.games = JSON.parse(result.data as string);
+      }
+    } catch {
+      console.error('Error handling games.json');
+      this.games = [];
     }
   }
 

@@ -17,7 +17,11 @@ import {
   IonButton,
   IonFooter,
   IonButtons,
-  IonIcon
+  IonIcon,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent
 } from '@ionic/angular/standalone';
 import { GridItemComponent } from '@components/grid-item/grid-item.component';
 import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
@@ -42,6 +46,10 @@ declare global {
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
+    IonCardContent,
+    IonCardTitle,
+    IonCardHeader,
+    IonCard,
     IonIcon,
     IonButtons,
     IonFooter,
