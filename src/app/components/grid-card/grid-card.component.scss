@@ -1,6 +1,7 @@
 .grid-card {
-  height: 210px;
-  width: 170px;
+  height: 160px;
+  width: auto;
+  background-color: transparent;
 
   position: relative;
   text-align: center;
@@ -8,7 +9,7 @@
   cursor: pointer;
 
   .grid-card__img {
-    height: 200px;
+    height: 160px;
 
     &--none {
       filter: grayscale(1) brightness(0.7);
@@ -20,14 +21,15 @@
     width: 100%;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+    padding-bottom: 1.2rem;
   }
 
   .grid-card__title {
     color: white;
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 600;
-    margin-left: 1rem;
-    margin-right: 1rem;
   }
 
   .grid-card__quantity {
@@ -36,7 +38,7 @@
     font-weight: 400;
 
     position: absolute;
-    bottom: 0.2rem;
+    bottom: -0.5rem;
     right: 0.2rem;
 
     &--none {
