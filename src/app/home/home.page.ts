@@ -26,6 +26,15 @@ import { DataService } from '@services/data.service';
 import { App } from '@capacitor/app';
 import { addIcons } from 'ionicons';
 import { settingsOutline } from 'ionicons/icons';
+import { Platform } from '@ionic/angular';
+
+declare global {
+  interface Navigator {
+    app: {
+      exitApp: () => void;
+    };
+  }
+}
 
 @Component({
   selector: 'app-home',
@@ -65,14 +74,22 @@ export class HomePage implements OnInit {
 
   constructor(
     private router: Router,
-    private dataService: DataService
+    private dataService: DataService,
+    private platform: Platform
   ) {
     addIcons({ settingsOutline });
+    this.initializeBackButtonCustomHandler();
   }
 
   ngOnInit() {
     this.loadGames();
     this.getVersionNumber();
+  }
+
+  initializeBackButtonCustomHandler(): void {
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      navigator['app'].exitApp();
+    });
   }
 
   async getVersionNumber() {
