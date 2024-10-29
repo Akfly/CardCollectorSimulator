@@ -33,7 +33,7 @@ export class DownloadGameModalComponent {
   get dataFromUrl() {
     const splitted = this.gameUrl.split('/');
     const fileName = splitted.pop();
-    const baseUrl = splitted.slice(0, -1).join('/');
+    const baseUrl = splitted.join('/');
     const gameId = fileName?.replace('.json', '');
 
     return { baseUrl, fileName, gameId };

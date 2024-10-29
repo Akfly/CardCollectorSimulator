@@ -56,7 +56,7 @@ export class FileService {
     try {
       await Filesystem.stat({
         directory: Directory.Documents,
-        path
+        path: `${DEFAULT_DIRECTORY}/${path}`
       });
       return true;
     } catch (err: any) {

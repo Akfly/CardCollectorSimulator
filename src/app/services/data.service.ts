@@ -24,9 +24,7 @@ export class DataService {
 
   private async loadGameDetails(gameId: number) {
     try {
-      const response = await fetch(`assets/games/${gameId}.json`);
-      const data = await response.json();
-      this.gameDetails[gameId] = data;
+      this.gameDetails[gameId] = (await this.fileService.readFile(`${gameId}.json`)) as Game;
     } catch (err) {
       console.error(`Error reading ${gameId}.json`, err);
     }
