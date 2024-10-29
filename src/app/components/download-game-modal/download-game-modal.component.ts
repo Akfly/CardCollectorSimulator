@@ -95,8 +95,14 @@ export class DownloadGameModalComponent {
   }
 
   async updateGameList(game: Game) {
-    const gameData = (await this.dataService.getGameList()) as { id: number; name: string }[];
-    gameData.push({ id: game.id, name: game.name });
+    const gameData = (await this.dataService.getGameList()) as { id: number; name: string; url: string }[];
+    const foundId = gameData.find(g => g.id === game.id);
+
+    if (foundId) {
+      gameData.splice(gameData.indexOf(foundId), 1);
+    }
+
+    gameData.push({ id: game.id, name: game.name, url: this.gameUrl });
     await this.fileService.saveFile('games.json', JSON.stringify(gameData));
     this.dataService.markGamesForRefresh();
   }
