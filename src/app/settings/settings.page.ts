@@ -12,10 +12,13 @@ import {
   IonItem
 } from '@ionic/angular/standalone';
 import { DataService } from '@services/data.service';
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Filesystem, Encoding } from '@capacitor/filesystem';
 import { ToastController } from '@ionic/angular';
 import { FileChooser } from '@ionic-native/file-chooser/ngx';
 import { DEFAULT_TOAST } from '@constants/constants';
+import { ModalController } from '@ionic/angular';
+import { DownloadGameModalComponent } from '@app/components/download-game-modal/download-game-modal.component';
+import { FileService } from '@app/services/file.service';
 
 @Component({
   selector: 'app-settings',
@@ -34,53 +37,22 @@ import { DEFAULT_TOAST } from '@constants/constants';
     IonHeader,
     IonButtons
   ],
-  providers: [ToastController, FileChooser]
+  providers: [ToastController, FileChooser, ModalController]
 })
 export class SettingsPage {
   constructor(
     private dataService: DataService,
     private toastController: ToastController,
-    private fileChooser: FileChooser
+    private fileChooser: FileChooser,
+    private modalController: ModalController,
+    private fileService: FileService
   ) {}
-
-  async checkCreateDirectory() {
-    try {
-      // Check if the directory exists
-      await Filesystem.readdir({
-        path: 'card-collector-simulator',
-        directory: Directory.Documents
-      });
-    } catch (e: any) {
-      // If the directory does not exist, create it
-      if (e.message === 'Directory does not exist') {
-        try {
-          await Filesystem.mkdir({
-            path: 'card-collector-simulator',
-            directory: Directory.Documents
-          });
-        } catch (mkdirError) {
-          console.error('Unable to create directory', mkdirError);
-          return;
-        }
-      } else {
-        console.error('Unable to read directory', e);
-        return;
-      }
-    }
-  }
 
   async exportSaveFile() {
     const data = await this.dataService.exportUserData();
 
     try {
-      await this.checkCreateDirectory();
-
-      const result = await Filesystem.writeFile({
-        path: 'card-collector-simulator/savefile',
-        data: data,
-        directory: Directory.Documents,
-        encoding: Encoding.UTF8
-      });
+      const result = await this.fileService.saveFile('savefile', data);
 
       // Show a toast message with the directory
       const toast = await this.toastController.create({
@@ -122,5 +94,15 @@ export class SettingsPage {
       });
       await toast.present();
     }
+  }
+
+  async addGame() {
+    const modal = await this.modalController.create({
+      component: DownloadGameModalComponent,
+      cssClass: 'card-modal'
+    });
+
+    await modal.present();
+    await modal.onDidDismiss();
   }
 }

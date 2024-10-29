@@ -110,7 +110,7 @@ export class HomePage implements OnInit {
   }
 
   async loadGames() {
-    this.games = await this.dataService.getGameList();
+    this.games = (await this.dataService.getGameList()) as { id: number; name: string }[];
   }
 
   onGameSelectionChange(event: any) {
