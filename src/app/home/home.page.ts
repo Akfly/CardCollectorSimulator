@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
@@ -31,6 +31,7 @@ import { App } from '@capacitor/app';
 import { addIcons } from 'ionicons';
 import { settingsOutline } from 'ionicons/icons';
 import { Platform } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 declare global {
   interface Navigator {
@@ -71,7 +72,7 @@ declare global {
     HeaderCoinComponent
   ]
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
   title: string = 'Card Collector Simulator';
   games: { id: number; name: string }[] = [];
   selectedGame!: Game;
@@ -79,6 +80,7 @@ export class HomePage implements OnInit {
   currencyImg!: string;
   userMoney!: number;
   versionNumber!: string;
+  backButtonSubscription!: Subscription;
 
   constructor(
     private router: Router,
@@ -94,8 +96,12 @@ export class HomePage implements OnInit {
     this.getVersionNumber();
   }
 
+  ngOnDestroy() {
+    this.backButtonSubscription.unsubscribe();
+  }
+
   initializeBackButtonCustomHandler(): void {
-    this.platform.backButton.subscribeWithPriority(10, () => {
+    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(10, () => {
       navigator['app'].exitApp();
     });
   }
