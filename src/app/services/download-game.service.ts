@@ -22,13 +22,22 @@ export class DownloadGameService {
   }
 
   private async downloadAllFiles(baseUrl: string, fileName: string, gameId: string) {
-    const game = (await this.fileService.downloadFile(baseUrl, fileName as string))?.data as Game;
+    const game = (await this.fileService.downloadFile(`${baseUrl}/${fileName}`, fileName, { type: 'json' }))
+      ?.data as Game;
 
-    await this.fileService.downloadFile(baseUrl, `${gameId}/coin.png`, false);
+    await this.fileService.downloadFile(`${baseUrl}/${gameId}/coin.png`, `${gameId}/coin.png`, { type: 'image' });
 
     for (const set of game.setList) {
-      await this.fileService.downloadFile(baseUrl, `${gameId}/sets/${set.id}/logo.png`, false);
-      await this.fileService.downloadFile(baseUrl, `${gameId}/sets/${set.id}/pack.jpg`, false);
+      await this.fileService.downloadFile(
+        `${baseUrl}/${gameId}/sets/${set.id}/logo.png`,
+        `${gameId}/sets/${set.id}/logo.png`,
+        { type: 'image' }
+      );
+      await this.fileService.downloadFile(
+        `${baseUrl}/${gameId}/sets/${set.id}/pack.jpg`,
+        `${gameId}/sets/${set.id}/pack.jpg`,
+        { type: 'image' }
+      );
     }
 
     return game;

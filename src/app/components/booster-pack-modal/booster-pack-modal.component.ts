@@ -4,9 +4,10 @@ import { close, key } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonContent } from '@ionic/angular/standalone';
 import { trigger, state, style, animate, transition, keyframes } from '@angular/animations';
-import { GameSet } from '@app/models/game-set.interface';
-import { Card } from '@app/models/card.interface';
-import { DataService } from '@app/services/data.service';
+import { GameSet } from '@models/game-set.interface';
+import { Card } from '@models/card.interface';
+import { DataService } from '@services/data.service';
+import { FileService } from '@services/file.service';
 
 const MIN_SWIPE_DISTANCE = 150;
 
@@ -71,7 +72,8 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
     private el: ElementRef,
     private renderer: Renderer2,
     private cdr: ChangeDetectorRef,
-    private dataService: DataService
+    private dataService: DataService,
+    private fileService: FileService
   ) {
     addIcons({ close });
   }
@@ -85,9 +87,11 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
     this.setupGesture();
   }
 
-  initNewPack() {
+  async initNewPack() {
     this.cardImages = [];
-    this.boosterPackImage = `assets/games/${this.gameId}/sets/${this.setData.id}/pack.jpg`;
+    this.boosterPackImage = (await this.fileService.readFile(`${this.gameId}/sets/${this.setData.id}/pack.jpg`, {
+      outputType: 'image'
+    })) as string;
     this.initialMaxWidth = `${this.setData.boosterPackImageSizePer}%`;
 
     Object.keys(this.setData.boosterRatio).forEach(key => {
@@ -97,6 +101,15 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
         this.initNormalRarityCards(key);
       }
     });
+
+    const imgPromises = this.cardIdList.map(
+      cardId =>
+        this.fileService.readFile(`${this.gameId}/sets/${this.setData.id}/${cardId}.jpg`, {
+          outputType: 'image'
+        }) as Promise<string>
+    );
+
+    this.cardImages = await Promise.all(imgPromises);
   }
 
   /*
@@ -148,7 +161,6 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
     if (this.cardIdList.includes(selectedCard.id)) {
       return false;
     } else {
-      this.cardImages.push(`assets/games/${this.gameId}/sets/${this.setData.id}/${selectedCard.id}.jpg`);
       this.cardIdList.push(selectedCard.id);
 
       return true;

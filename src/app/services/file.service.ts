@@ -5,11 +5,20 @@ import { HttpClient } from '@angular/common/http';
 
 const DEFAULT_DIRECTORY = 'CardCollectorSimulator';
 
+interface ReadFileOptions {
+  defaultContent?: string;
+  outputType?: 'image';
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class FileService {
   isDirectoryChecked = false;
+
+  get mainDirectory() {
+    return `${Directory.Documents}/${DEFAULT_DIRECTORY}`;
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -52,6 +61,17 @@ export class FileService {
     }
   }
 
+  private async convertBlobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   async checkFileExists(path: string): Promise<boolean> {
     try {
       await Filesystem.stat({
@@ -67,7 +87,7 @@ export class FileService {
     }
   }
 
-  async saveFile(path: string, data: string, transformToJSON = true) {
+  async saveFile(path: string, data: string | Blob, transformToJSON = true) {
     await this.checkDirectoryExists();
 
     const uri = `${DEFAULT_DIRECTORY}/${path}`;
@@ -79,17 +99,17 @@ export class FileService {
       encoding: Encoding.UTF8
     });
 
-    return { uri, data: transformToJSON ? JSON.parse(data) : data };
+    return { uri, data: transformToJSON ? JSON.parse(data as string) : data };
   }
 
-  async readFile(path: string, defaultContent: string | null = null): Promise<object> {
+  async readFile(path: string, options?: ReadFileOptions): Promise<object | string | Blob> {
     await this.checkDirectoryExists();
 
     if (!(await this.checkFileExists(path))) {
-      if (defaultContent) {
-        await this.saveFile(path, defaultContent);
+      if (options?.defaultContent) {
+        await this.saveFile(path, options.defaultContent);
 
-        return JSON.parse(defaultContent);
+        return JSON.parse(options.defaultContent);
       }
       throw new Error('File does not exist');
     }
@@ -100,15 +120,21 @@ export class FileService {
       encoding: Encoding.UTF8
     });
 
+    if (options?.outputType === 'image') {
+      return await this.convertBlobToBase64(new Blob([result.data]));
+    }
     return JSON.parse(result.data as string);
   }
 
-  async downloadFile(baseUrl: string, fileName: string, transformToJSON = true) {
-    let response = '';
-    const url = `${baseUrl}/${fileName}`;
+  async downloadFile(url: string, fileName: string, options: { type: 'image' | 'json' | 'text' }) {
+    let response: string | Blob;
 
     try {
-      response = await lastValueFrom(this.http.get(url, { responseType: 'text' }));
+      if (options.type === 'image') {
+        response = (await lastValueFrom(this.http.get(url, { responseType: 'blob' }))) as Blob;
+      } else {
+        response = (await lastValueFrom(this.http.get(url, { responseType: 'text' }))) as string;
+      }
     } catch (error) {
       console.error('Error downloading the file', error);
       throw new Error('Error downloading the file');
@@ -119,6 +145,6 @@ export class FileService {
       await this.checkDirectoryExists(`${DEFAULT_DIRECTORY}/${directory}`);
     }
 
-    return this.saveFile(fileName as string, response, transformToJSON);
+    return this.saveFile(fileName as string, response, options.type === 'json');
   }
 }

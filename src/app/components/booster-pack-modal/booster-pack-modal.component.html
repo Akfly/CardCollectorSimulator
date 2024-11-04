@@ -10,30 +10,32 @@
 
 <ion-content class="ion-padding">
   <div class="booster-pack-modal__content">
-    <img
-      [src]="boosterPackImage"
-      alt="Booster Pack"
-      id="booster-pack-image"
-      [class.opened]="isBoosterPackOpened"
-      [style.zIndex]="cardImages.length + 1"
-      (click)="openBoosterPack()"
-    />
-    @for (cardImage of cardImages; track $index; let index = $index) {
+    @if (boosterPackImage) {
       <img
-        [src]="cardImage"
-        class="booster-pack-modal__card"
-        [style.zIndex]="cardImages.length - index"
-        [style.maxWidth]="!isBoosterPackOpened ? initialMaxWidth : '100%'"
-        [style.opacity]="!isBoosterPackOpened ? 0 : 1"
-        [style.borderRadius]="setData.borderRadius"
-        [class.active]="index === currentCardIndex"
-        [@cardAnimation]="{
-          value: isBoosterPackOpened ? 'opened' : 'closed',
-          params: { initialMaxWidth: initialMaxWidth }
-        }"
-        [@cardOut]="cardOutAnimation[index]"
-        (@cardOut.done)="onCardOutDone($event, index)"
+        [src]="boosterPackImage"
+        alt="Booster Pack"
+        id="booster-pack-image"
+        [class.opened]="isBoosterPackOpened"
+        [style.zIndex]="cardImages.length + 1"
+        (click)="openBoosterPack()"
       />
+      @for (cardImage of cardImages; track $index; let index = $index) {
+        <img
+          [src]="cardImage"
+          class="booster-pack-modal__card"
+          [style.zIndex]="cardImages.length - index"
+          [style.maxWidth]="!isBoosterPackOpened ? initialMaxWidth : '100%'"
+          [style.opacity]="!isBoosterPackOpened ? 0 : 1"
+          [style.borderRadius]="setData.borderRadius"
+          [class.active]="index === currentCardIndex"
+          [@cardAnimation]="{
+            value: isBoosterPackOpened ? 'opened' : 'closed',
+            params: { initialMaxWidth: initialMaxWidth }
+          }"
+          [@cardOut]="cardOutAnimation[index]"
+          (@cardOut.done)="onCardOutDone($event, index)"
+        />
+      }
     }
   </div>
 </ion-content>

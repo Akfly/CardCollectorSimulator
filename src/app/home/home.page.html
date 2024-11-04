@@ -40,10 +40,12 @@
         @for (item of gridItems; track item) {
         <ion-col size="6">
           <app-grid-item
-            (click)="onSetClick(item.id)"
+            (click)="onSetClick(item)"
+            (download)="onDownloadSetClick(item)"
             [image]="item.image"
             [name]="item.name"
             [progress]="item.progress"
+            [isDownloaded]="item.isDownloaded"
           ></app-grid-item>
         </ion-col>
         }

@@ -32,6 +32,9 @@ import { addIcons } from 'ionicons';
 import { settingsOutline } from 'ionicons/icons';
 import { Platform } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { FileService } from '@services/file.service';
+import { ToastController } from '@ionic/angular';
+import { DEFAULT_TOAST } from '@constants/constants';
 
 declare global {
   interface Navigator {
@@ -39,6 +42,14 @@ declare global {
       exitApp: () => void;
     };
   }
+}
+
+interface GridItem {
+  id: number;
+  image: string;
+  name: string;
+  progress: string;
+  isDownloaded: boolean;
 }
 
 @Component({
@@ -76,7 +87,7 @@ export class HomePage implements OnInit, OnDestroy {
   title: string = 'Card Collector Simulator';
   games: { id: number; name: string }[] = [];
   selectedGame!: Game;
-  gridItems: { id: number; image: string; name: string; progress: string }[] = [];
+  gridItems: GridItem[] = [];
   currencyImg!: string;
   userMoney!: number;
   versionNumber!: string;
@@ -85,7 +96,9 @@ export class HomePage implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private dataService: DataService,
-    private platform: Platform
+    private fileService: FileService,
+    private platform: Platform,
+    private toastController: ToastController
   ) {
     addIcons({ settingsOutline });
     this.initializeBackButtonCustomHandler();
@@ -132,7 +145,7 @@ export class HomePage implements OnInit, OnDestroy {
     const [game, userMoney] = await Promise.all(loadGamePromises);
 
     this.selectedGame = game;
-    this.currencyImg = `assets/games/${gameId}/coin.png`;
+    this.currencyImg = (await this.fileService.readFile(`${gameId}/coin.png`, { outputType: 'image' })) as string;
     this.userMoney = parseInt(userMoney, 10) || 0;
     this.updateGridItems();
   }
@@ -140,31 +153,79 @@ export class HomePage implements OnInit, OnDestroy {
   async updateGridItems() {
     if (this.selectedGame) {
       const quantitiesPromises: any[] = [];
+      const imagePromises: any[] = [];
 
       this.gridItems = this.selectedGame.setList.map(set => {
         quantitiesPromises.push(this.dataService.getUserData(`setQuantity-${this.selectedGame.id}-${set.id}`));
+        imagePromises.push(
+          this.fileService.readFile(`${this.selectedGame.id}/sets/${set.id}/logo.png`, { outputType: 'image' })
+        );
 
         return {
           id: set.id,
-          image: `assets/games/${this.selectedGame.id}/sets/${set.id}/logo.png`,
+          image: '',
           name: set.name,
-          progress: ''
+          progress: '',
+          isDownloaded: false
         };
       });
 
-      const quantitiesResponse = await Promise.all(quantitiesPromises);
+      const [quantitiesResponse, imagesResponse] = await Promise.all([
+        Promise.all(quantitiesPromises),
+        Promise.all(imagePromises)
+      ]);
 
       this.gridItems.forEach((item, index) => {
         item.progress = `${quantitiesResponse[index] || 0}/${this.selectedGame.setList[index].cardList.length}`;
+        item.image = imagesResponse[index];
+        this.checkIfSetIsDownloaded(item);
       });
     } else {
       this.gridItems = [];
     }
   }
 
-  onSetClick(setId: number) {
+  async checkIfSetIsDownloaded(item: GridItem) {
+    const isDownloaded = await this.dataService.getUserData(`isDownloaded-${this.selectedGame.id}-${item.id}`);
+    item.isDownloaded = isDownloaded === 'true';
+  }
+
+  onSetClick(item: GridItem) {
+    if (!item.isDownloaded) {
+      return;
+    }
+
     const gameId = this.selectedGame.id;
-    this.router.navigate(['/set-info', gameId, setId]);
+    this.router.navigate(['/set-info', gameId, item.id]);
+  }
+
+  async onDownloadSetClick(item: GridItem) {
+    const set = this.selectedGame.setList.find(s => s.id === item.id);
+
+    try {
+      const promises = [];
+      for (const card of set?.cardList || []) {
+        promises.push(
+          this.fileService.downloadFile(card.imagePath, `${this.selectedGame.id}/sets/${set?.id}/${card.id}.jpg`, {
+            type: 'image'
+          })
+        );
+      }
+
+      await Promise.all(promises);
+      item.isDownloaded = true;
+      this.dataService.saveUserData(`isDownloaded-${this.selectedGame.id}-${item.id}`, 'true');
+
+      const toast = await this.toastController.create({
+        ...DEFAULT_TOAST,
+        message: `${item.name} downloaded successfully`
+      });
+      await toast.present();
+    } catch (error) {
+      console.error('Error downloading set', error);
+      const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: `Error downloading ${item.name}` });
+      await toast.present();
+    }
   }
 
   openSettings() {

@@ -3,7 +3,60 @@
 
   cursor: pointer;
 
+  &--disabled {
+    background-color: rgb(20 20 20);
+
+    cursor: default;
+    pointer-events: none;
+
+    .grid-item__img {
+      filter: grayscale(1) brightness(0.7) opacity(0.5);
+    }
+
+    .grid-item__title,
+    .grid-item__progress {
+      color: rgb(75 75 75);
+    }
+
+    .grid-item__accordion {
+      pointer-events: all;
+    }
+  }
+
   .grid-item__img {
     max-height: 100px;
+  }
+
+  .grid-item__accordion-group {
+    .grid-item__accordion {
+      height: 2em;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+
+      &.accordion-expanded {
+        height: 6em;
+
+        .grid-item__download {
+          min-height: 2em;
+          width: 100%;
+        }
+      }
+
+      .grid-item__accordion-content {
+        padding: 0.5em 1em 0.3em 1em;
+      }
+
+      > ion-item::part(native) {
+        min-height: 2em;
+        height: 2em;
+      }
+
+      > ion-item.grid-item__accordion-header ion-icon.ion-accordion-toggle-icon {
+        font-size: 1em;
+        width: 100%;
+        margin: 0;
+      }
+    }
   }
 }

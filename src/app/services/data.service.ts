@@ -15,7 +15,10 @@ export class DataService {
 
   private async loadGames() {
     try {
-      this.games = (await this.fileService.readFile('games.json', '[]')) as { id: number; name: string }[];
+      this.games = (await this.fileService.readFile('games.json', { defaultContent: '[]' })) as {
+        id: number;
+        name: string;
+      }[];
     } catch {
       console.error('Error handling games.json');
       this.games = [];

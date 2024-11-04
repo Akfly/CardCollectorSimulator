@@ -1,16 +1,46 @@
-import { Component, Input } from '@angular/core';
-import { IonCard, IonCardContent, IonCardTitle } from '@ionic/angular/standalone';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import {
+  IonCard,
+  IonCardContent,
+  IonCardTitle,
+  IonButton,
+  IonIcon,
+  IonAccordionGroup,
+  IonAccordion,
+  IonItem,
+  IonLabel
+} from '@ionic/angular/standalone';
 import { RubyTextPipe } from '@pipes/ruby-text.pipe';
+import { addIcons } from 'ionicons';
+import { downloadOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-grid-item',
   templateUrl: './grid-item.component.html',
   styleUrls: ['./grid-item.component.scss'],
   standalone: true,
-  imports: [IonCard, IonCardContent, IonCardTitle, RubyTextPipe]
+  encapsulation: ViewEncapsulation.None,
+  imports: [
+    IonLabel,
+    IonItem,
+    IonAccordion,
+    IonAccordionGroup,
+    IonIcon,
+    IonButton,
+    IonCard,
+    IonCardContent,
+    IonCardTitle,
+    RubyTextPipe
+  ]
 })
 export class GridItemComponent {
   @Input() image!: string;
   @Input() name!: string;
   @Input() progress!: string;
+  @Input() isDownloaded!: boolean;
+  @Output() download = new EventEmitter<void>();
+
+  constructor() {
+    addIcons({ downloadOutline });
+  }
 }

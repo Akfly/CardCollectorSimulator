@@ -43,8 +43,6 @@ export class DownloadGameModalComponent {
   constructor(
     private modalController: ModalController,
     private toastController: ToastController,
-    private fileService: FileService,
-    private dataService: DataService,
     private downloadGameService: DownloadGameService
   ) {
     addIcons({ close });
