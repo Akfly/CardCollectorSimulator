@@ -18,6 +18,7 @@ import { Game } from '@models/game.interface';
 import { FileService } from '@services/file.service';
 import { DEFAULT_TOAST } from '@constants/constants';
 import { DataService } from '@app/services/data.service';
+import { DownloadGameService } from '@services/download-game.service';
 
 @Component({
   selector: 'app-download-game-modal',
@@ -43,7 +44,8 @@ export class DownloadGameModalComponent {
     private modalController: ModalController,
     private toastController: ToastController,
     private fileService: FileService,
-    private dataService: DataService
+    private dataService: DataService,
+    private downloadGameService: DownloadGameService
   ) {
     addIcons({ close });
   }
@@ -60,15 +62,8 @@ export class DownloadGameModalComponent {
   }
 
   async addGame() {
-    if (!this.gameUrl.includes('.json')) {
-      throw new Error('URL must end with .json');
-    }
-
     try {
-      const { baseUrl, fileName, gameId } = this.dataFromUrl;
-      const game = await this.downloadAllFiles(baseUrl, fileName as string, gameId as string);
-
-      await this.updateGameList(game);
+      this.downloadGameService.downloadFromUrl(this.gameUrl);
 
       const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: 'Game added successfully' });
       await toast.present();
@@ -79,31 +74,5 @@ export class DownloadGameModalComponent {
     }
 
     this.dismissModal();
-  }
-
-  async downloadAllFiles(baseUrl: string, fileName: string, gameId: string) {
-    const game = (await this.fileService.downloadFile(baseUrl, fileName as string))?.data as Game;
-
-    await this.fileService.downloadFile(baseUrl, `${gameId}/coin.png`, false);
-
-    for (const set of game.setList) {
-      await this.fileService.downloadFile(baseUrl, `${gameId}/sets/${set.id}/logo.png`, false);
-      await this.fileService.downloadFile(baseUrl, `${gameId}/sets/${set.id}/pack.jpg`, false);
-    }
-
-    return game;
-  }
-
-  async updateGameList(game: Game) {
-    const gameData = (await this.dataService.getGameList()) as { id: number; name: string; url: string }[];
-    const foundId = gameData.find(g => g.id === game.id);
-
-    if (foundId) {
-      gameData.splice(gameData.indexOf(foundId), 1);
-    }
-
-    gameData.push({ id: game.id, name: game.name, url: this.gameUrl });
-    await this.fileService.saveFile('games.json', JSON.stringify(gameData));
-    this.dataService.markGamesForRefresh();
   }
 }

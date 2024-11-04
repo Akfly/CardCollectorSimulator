@@ -19,6 +19,7 @@ import { DEFAULT_TOAST } from '@constants/constants';
 import { ModalController } from '@ionic/angular';
 import { DownloadGameModalComponent } from '@app/components/download-game-modal/download-game-modal.component';
 import { FileService } from '@app/services/file.service';
+import { DownloadGameService } from '@services/download-game.service';
 
 @Component({
   selector: 'app-settings',
@@ -45,7 +46,8 @@ export class SettingsPage {
     private toastController: ToastController,
     private fileChooser: FileChooser,
     private modalController: ModalController,
-    private fileService: FileService
+    private fileService: FileService,
+    private downloadGameService: DownloadGameService
   ) {}
 
   async exportSaveFile() {
@@ -104,5 +106,26 @@ export class SettingsPage {
 
     await modal.present();
     await modal.onDidDismiss();
+  }
+
+  async updateGames() {
+    const games = (await this.dataService.getGameList()) as { id: number; name: string; url: string }[];
+    for (const game of games) {
+      if (game.url) {
+        try {
+          this.downloadGameService.downloadFromUrl(game.url);
+
+          const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: `${game.name} updated` });
+          await toast.present();
+        } catch (error) {
+          console.error(`Error downloading ${game.name}`, error);
+          const toast = await this.toastController.create({
+            ...DEFAULT_TOAST,
+            message: `Error downloading ${game.name}`
+          });
+          await toast.present();
+        }
+      }
+    }
   }
 }
