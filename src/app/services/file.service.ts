@@ -147,4 +147,11 @@ export class FileService {
 
     return this.saveFile(fileName as string, response, options.type === 'json');
   }
+
+  async deleteFile(path: string) {
+    await Filesystem.deleteFile({
+      path: `${DEFAULT_DIRECTORY}/${path}`,
+      directory: Directory.Documents
+    });
+  }
 }

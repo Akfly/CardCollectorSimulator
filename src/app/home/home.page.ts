@@ -228,6 +228,30 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
+  async onRemoveSetClick(item: GridItem) {
+    const set = this.selectedGame.setList.find(s => s.id === item.id);
+
+    try {
+      const promises = set?.cardList.map(card =>
+        this.fileService.deleteFile(`${this.selectedGame.id}/sets/${set?.id}/${card.id}.jpg`)
+      );
+      await Promise.all(promises || []);
+
+      item.isDownloaded = false;
+      this.dataService.saveUserData(`isDownloaded-${this.selectedGame.id}-${item.id}`, 'false');
+
+      const toast = await this.toastController.create({
+        ...DEFAULT_TOAST,
+        message: `${item.name} removed successfully`
+      });
+      await toast.present();
+    } catch (error) {
+      console.error('Error removing set', error);
+      const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: `Error removing ${item.name}` });
+      await toast.present();
+    }
+  }
+
   openSettings() {
     this.router.navigate(['/settings']);
   }

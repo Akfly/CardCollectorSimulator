@@ -42,6 +42,7 @@
           <app-grid-item
             (click)="onSetClick(item)"
             (download)="onDownloadSetClick(item)"
+            (remove)="onRemoveSetClick(item)"
             [image]="item.image"
             [name]="item.name"
             [progress]="item.progress"

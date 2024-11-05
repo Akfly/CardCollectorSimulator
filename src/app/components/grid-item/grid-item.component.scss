@@ -41,6 +41,16 @@
           min-height: 2em;
           width: 100%;
         }
+
+        .grid-item__remove {
+          min-height: 2em;
+          width: 100%;
+          color: white;
+
+          &::part(native) {
+            background-color: darkred;
+          }
+        }
       }
 
       .grid-item__accordion-content {

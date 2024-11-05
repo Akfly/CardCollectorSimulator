@@ -12,7 +12,7 @@ import {
 } from '@ionic/angular/standalone';
 import { RubyTextPipe } from '@pipes/ruby-text.pipe';
 import { addIcons } from 'ionicons';
-import { downloadOutline } from 'ionicons/icons';
+import { downloadOutline, trashOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-grid-item',
@@ -39,8 +39,9 @@ export class GridItemComponent {
   @Input() progress!: string;
   @Input() isDownloaded!: boolean;
   @Output() download = new EventEmitter<void>();
+  @Output() remove = new EventEmitter<void>();
 
   constructor() {
-    addIcons({ downloadOutline });
+    addIcons({ downloadOutline, trashOutline });
   }
 }
