@@ -1,7 +1,25 @@
-<ion-card class="grid-item">
+<ion-card class="grid-item" [class.grid-item--disabled]="!isDownloaded">
   <img class="grid-item__img" [src]="image" />
   <ion-card-content class="grid-item__container">
     <ion-card-title class="grid-item__title" [innerHTML]="name | rubyText" />
     <p class="grid-item__progress">{{ progress }}</p>
   </ion-card-content>
+  @if (hasImageHandling) {
+    <ion-accordion-group class="grid-item__accordion-group" (click)="$event.stopPropagation()">
+      <ion-accordion value="first" class="grid-item__accordion">
+        <ion-item slot="header" class="grid-item__accordion-header"> </ion-item>
+        <div class="grid-item__accordion-content" slot="content">
+          @if (isDownloaded) {
+            <ion-button class="grid-item__remove" (click)="remove.emit()">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          } @else {
+            <ion-button class="grid-item__download" (click)="download.emit()">
+              <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+            </ion-button>
+          }
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  }
 </ion-card>

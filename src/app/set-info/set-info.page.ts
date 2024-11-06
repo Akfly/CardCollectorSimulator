@@ -1,8 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DateTime } from 'luxon';
-import { Game } from '@models/game.interface';
-import { DataService } from '@services/data.service';
+import { ModalController } from '@ionic/angular';
 import {
   IonHeader,
   IonButtons,
@@ -19,17 +17,20 @@ import {
   IonCol,
   IonRow
 } from '@ionic/angular/standalone';
-import { ModalController } from '@ionic/angular';
-import { GameSet } from '@app/models/game-set.interface';
-import { RubyTextPipe } from '@app/pipes/ruby-text.pipe';
+import { DateTime } from 'luxon';
+import { BoosterPackModalComponent } from '@components/booster-pack-modal/booster-pack-modal.component';
+import { CardModalComponent } from '@components/card-modal/card-modal.component';
 import { GridCardComponent } from '@components/grid-card/grid-card.component';
 import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
-import { SECONDS_TO_NEXT_PACK } from '@app/constants/constants';
-import { CardModalComponent } from '@components/card-modal/card-modal.component';
-import { BoosterPackModalComponent } from '@components/booster-pack-modal/booster-pack-modal.component';
-import { Card } from '@models/card.interface';
-import { unlerp } from '@utils/utils';
 import { PromoModalComponent } from '@components/promo-modal/promo-modal.component';
+import { SECONDS_TO_NEXT_PACK } from '@constants/constants';
+import { Card } from '@models/card.interface';
+import { Game } from '@models/game.interface';
+import { GameSet } from '@models/game-set.interface';
+import { RubyTextPipe } from '@pipes/ruby-text.pipe';
+import { DataService } from '@services/data.service';
+import { FileService } from '@services/file.service';
+import { unlerp } from '@utils/utils';
 
 @Component({
   selector: 'app-set-info',
@@ -83,6 +84,7 @@ export class SetInfoPage implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private dataService: DataService,
+    private fileService: FileService,
     private modalController: ModalController,
     private cdr: ChangeDetectorRef
   ) {}
@@ -110,7 +112,7 @@ export class SetInfoPage implements OnInit, OnDestroy {
     const [game, userMoney, lastFreePack] = await Promise.all(loadDataPromises);
 
     this.game = game;
-    this.currencyImg = `assets/games/${this.gameId}/coin.png`;
+    this.currencyImg = (await this.fileService.readFile(`${this.gameId}/coin.png`, { outputType: 'image' })) as string;
     this.userMoney = parseInt(userMoney, 10) || 0;
     this.lastFreePackDate = DateTime.fromISO(lastFreePack ?? '1000-01-01T00:00:00Z');
     this.setData = this.game.setList.find(set => set.id === this.setId) as GameSet;
@@ -118,7 +120,13 @@ export class SetInfoPage implements OnInit, OnDestroy {
     const cardDataPromises: any[] = this.setData.cardList.map(card =>
       this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setId}-${card.id}`)
     );
-    const cardQuantities = await Promise.all(cardDataPromises);
+    const cardImagePromises: any[] = this.setData.cardList.map(card =>
+      this.fileService.readFile(`${this.gameId}/sets/${this.setId}/${card.id}.jpg`, { outputType: 'image' })
+    );
+    const [cardQuantities, imagesResponse] = await Promise.all([
+      Promise.all(cardDataPromises),
+      Promise.all(cardImagePromises)
+    ]);
     let setQuantity = 0;
 
     this.cardsData = this.setData.cardList.map((card, index) => {
@@ -130,7 +138,7 @@ export class SetInfoPage implements OnInit, OnDestroy {
 
       return {
         id: card.id,
-        image: `assets/games/${this.game.id}/sets/${this.setData.id}/${card.id}.jpg`,
+        image: imagesResponse[index],
         quantity: cardQuantity
       };
     });
@@ -246,11 +254,12 @@ export class SetInfoPage implements OnInit, OnDestroy {
     this.cdr.markForCheck();
 
     promosToGet.forEach(async promo => {
+      const image = (await this.fileService.readFile(`${this.game.id}/sets/0/${promo.card.id}.jpg`, {
+        outputType: 'image'
+      })) as string;
       const modal = await this.modalController.create({
         component: PromoModalComponent,
-        componentProps: {
-          image: `assets/games/${this.game.id}/sets/0/${promo.card.id}.jpg`
-        },
+        componentProps: { image },
         cssClass: 'card-modal'
       });
 

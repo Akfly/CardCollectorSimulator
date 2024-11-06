@@ -1,32 +1,40 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { Game } from '@models/game.interface';
+import { FileService } from '@services/file.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-  private games!: { id: number; name: string }[];
+  private games!: { id: number; name: string }[] | undefined;
   private gameDetails: { [key: number]: Game } = {};
+
+  constructor(private fileService: FileService) {}
 
   private async loadGames() {
     try {
-      const response = await fetch('assets/games.json');
-      const data = await response.json();
-      this.games = data;
-    } catch (err) {
-      console.error('Error reading games.json', err);
+      this.games = (await this.fileService.readFile('games.json', { defaultContent: '[]' })) as {
+        id: number;
+        name: string;
+      }[];
+    } catch {
+      console.error('Error handling games.json');
+      this.games = [];
     }
   }
 
   private async loadGameDetails(gameId: number) {
     try {
-      const response = await fetch(`assets/games/${gameId}.json`);
-      const data = await response.json();
-      this.gameDetails[gameId] = data;
+      this.gameDetails[gameId] = (await this.fileService.readFile(`${gameId}.json`)) as Game;
     } catch (err) {
       console.error(`Error reading ${gameId}.json`, err);
     }
+  }
+
+  markGamesForRefresh() {
+    this.games = undefined;
+    this.gameDetails = {};
   }
 
   getGameList = async () => {

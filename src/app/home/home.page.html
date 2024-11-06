@@ -14,6 +14,18 @@
 
 <ion-content>
   <div id="container">
+    @if (!games.length) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Welcome</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        No games installed were found. You can add new games in settings, on the top left icon or manually installing
+        them in your Documents/CardCollectorSimulator folder.
+      </ion-card-content>
+    </ion-card>
+    } @else {
     <ion-item>
       <ion-label>Games</ion-label>
       <ion-select (ionChange)="onGameSelectionChange($event)">
@@ -28,15 +40,20 @@
         @for (item of gridItems; track item) {
         <ion-col size="6">
           <app-grid-item
-            (click)="onSetClick(item.id)"
+            (click)="onSetClick(item)"
+            (download)="onDownloadSetClick(item)"
+            (remove)="onRemoveSetClick(item)"
             [image]="item.image"
             [name]="item.name"
             [progress]="item.progress"
+            [isDownloaded]="item.isDownloaded"
+            [hasImageHandling]="item.id !== 0"
           ></app-grid-item>
         </ion-col>
         }
       </ion-row>
     </ion-grid>
+    }
   </div>
 </ion-content>
 

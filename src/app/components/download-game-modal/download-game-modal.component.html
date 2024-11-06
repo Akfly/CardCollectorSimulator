@@ -1,0 +1,17 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Add Game</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-input type="url" placeholder="Enter game URL" (ionInput)="setUrl($event)"></ion-input>
+  </ion-item>
+  <ion-button expand="full" (click)="addGame()">Add</ion-button>
+</ion-content>
