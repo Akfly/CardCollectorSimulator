@@ -9,8 +9,8 @@ import {
   IonContent,
   IonBackButton
 } from '@ionic/angular/standalone';
-import { close } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
+import { close } from 'ionicons/icons';
 import { SellCardPopupComponent } from '@components/card-modal/sell-card-popup/sell-card-popup.component';
 import { Card } from '@models/card.interface';
 import { Game } from '@models/game.interface';

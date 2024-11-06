@@ -9,8 +9,8 @@ import {
   IonContent,
   IonBackButton
 } from '@ionic/angular/standalone';
-import { close } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
+import { close } from 'ionicons/icons';
 
 @Component({
   selector: 'app-card-modal',

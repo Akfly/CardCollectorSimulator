@@ -1,9 +1,9 @@
 import { Component, Input, ElementRef, OnInit, AfterViewInit, Renderer2, ChangeDetectorRef } from '@angular/core';
-import { ModalController, GestureController, Gesture } from '@ionic/angular';
-import { close, key } from 'ionicons/icons';
-import { addIcons } from 'ionicons';
-import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonContent } from '@ionic/angular/standalone';
 import { trigger, state, style, animate, transition, keyframes } from '@angular/animations';
+import { ModalController, GestureController, Gesture } from '@ionic/angular';
+import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonContent } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { close, key } from 'ionicons/icons';
 import { GameSet } from '@models/game-set.interface';
 import { Card } from '@models/card.interface';
 import { DataService } from '@services/data.service';

@@ -1,8 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DateTime } from 'luxon';
-import { Game } from '@models/game.interface';
-import { DataService } from '@services/data.service';
+import { ModalController } from '@ionic/angular';
 import {
   IonHeader,
   IonButtons,
@@ -19,18 +17,20 @@ import {
   IonCol,
   IonRow
 } from '@ionic/angular/standalone';
-import { ModalController } from '@ionic/angular';
-import { GameSet } from '@app/models/game-set.interface';
-import { RubyTextPipe } from '@app/pipes/ruby-text.pipe';
+import { DateTime } from 'luxon';
+import { BoosterPackModalComponent } from '@components/booster-pack-modal/booster-pack-modal.component';
+import { CardModalComponent } from '@components/card-modal/card-modal.component';
 import { GridCardComponent } from '@components/grid-card/grid-card.component';
 import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
-import { SECONDS_TO_NEXT_PACK } from '@app/constants/constants';
-import { CardModalComponent } from '@components/card-modal/card-modal.component';
-import { BoosterPackModalComponent } from '@components/booster-pack-modal/booster-pack-modal.component';
-import { Card } from '@models/card.interface';
-import { unlerp } from '@utils/utils';
 import { PromoModalComponent } from '@components/promo-modal/promo-modal.component';
+import { SECONDS_TO_NEXT_PACK } from '@constants/constants';
+import { Card } from '@models/card.interface';
+import { Game } from '@models/game.interface';
+import { GameSet } from '@models/game-set.interface';
+import { RubyTextPipe } from '@pipes/ruby-text.pipe';
+import { DataService } from '@services/data.service';
 import { FileService } from '@services/file.service';
+import { unlerp } from '@utils/utils';
 
 @Component({
   selector: 'app-set-info',

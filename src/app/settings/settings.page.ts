@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Filesystem, Encoding } from '@capacitor/filesystem';
+import { ModalController, ToastController } from '@ionic/angular';
 import {
   IonButtons,
   IonHeader,
@@ -11,15 +13,12 @@ import {
   IonLabel,
   IonItem
 } from '@ionic/angular/standalone';
-import { DataService } from '@services/data.service';
-import { Filesystem, Encoding } from '@capacitor/filesystem';
-import { ToastController } from '@ionic/angular';
 import { FileChooser } from '@ionic-native/file-chooser/ngx';
+import { DownloadGameModalComponent } from '@components/download-game-modal/download-game-modal.component';
 import { DEFAULT_TOAST } from '@constants/constants';
-import { ModalController } from '@ionic/angular';
-import { DownloadGameModalComponent } from '@app/components/download-game-modal/download-game-modal.component';
-import { FileService } from '@app/services/file.service';
+import { DataService } from '@services/data.service';
 import { DownloadGameService } from '@services/download-game.service';
+import { FileService } from '@services/file.service';
 
 @Component({
   selector: 'app-settings',

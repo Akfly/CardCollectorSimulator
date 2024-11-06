@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Game } from '@app/models/game.interface';
+import { Game } from '@models/game.interface';
+import { GameSet } from '@models/game-set.interface';
 import { FileService } from '@services/file.service';
 import { DataService } from '@services/data.service';
-import { GameSet } from '@app/models/game-set.interface';
 
 @Injectable({
   providedIn: 'root'

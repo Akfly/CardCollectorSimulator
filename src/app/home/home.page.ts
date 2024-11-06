@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { App } from '@capacitor/app';
+import { Platform, ToastController } from '@ionic/angular';
 import {
   IonHeader,
   IonToolbar,
@@ -23,18 +25,15 @@ import {
   IonCardTitle,
   IonCardContent
 } from '@ionic/angular/standalone';
-import { GridItemComponent } from '@components/grid-item/grid-item.component';
-import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
-import { Game } from '@models/game.interface';
-import { DataService } from '@services/data.service';
-import { App } from '@capacitor/app';
 import { addIcons } from 'ionicons';
 import { settingsOutline } from 'ionicons/icons';
-import { Platform } from '@ionic/angular';
 import { Subscription } from 'rxjs';
-import { FileService } from '@services/file.service';
-import { ToastController } from '@ionic/angular';
+import { GridItemComponent } from '@components/grid-item/grid-item.component';
+import { HeaderCoinComponent } from '@components/header-coin/header-coin.component';
 import { DEFAULT_TOAST } from '@constants/constants';
+import { Game } from '@models/game.interface';
+import { DataService } from '@services/data.service';
+import { FileService } from '@services/file.service';
 
 declare global {
   interface Navigator {

@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { close } from 'ionicons/icons';
 import {
   IonHeader,
   IonToolbar,
@@ -16,6 +15,7 @@ import {
   IonRange
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
+import { close } from 'ionicons/icons';
 import { Card } from '@models/card.interface';
 import { Game } from '@models/game.interface';
 import { GameSet } from '@models/game-set.interface';

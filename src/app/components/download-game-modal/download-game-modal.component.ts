@@ -14,10 +14,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { close } from 'ionicons/icons';
-import { Game } from '@models/game.interface';
-import { FileService } from '@services/file.service';
 import { DEFAULT_TOAST } from '@constants/constants';
-import { DataService } from '@app/services/data.service';
 import { DownloadGameService } from '@services/download-game.service';
 
 @Component({

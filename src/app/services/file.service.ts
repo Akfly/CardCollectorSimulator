@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { lastValueFrom } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 
 const DEFAULT_DIRECTORY = 'CardCollectorSimulator';
 

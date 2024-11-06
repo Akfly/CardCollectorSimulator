@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { Game } from '@models/game.interface';
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { FileService } from '@services/file.service';
 
 @Injectable({

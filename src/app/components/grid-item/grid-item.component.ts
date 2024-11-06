@@ -10,9 +10,9 @@ import {
   IonItem,
   IonLabel
 } from '@ionic/angular/standalone';
-import { RubyTextPipe } from '@pipes/ruby-text.pipe';
 import { addIcons } from 'ionicons';
 import { downloadOutline, trashOutline } from 'ionicons/icons';
+import { RubyTextPipe } from '@pipes/ruby-text.pipe';
 
 @Component({
   selector: 'app-grid-item',
