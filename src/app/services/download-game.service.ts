@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/models/game.interface';
 import { FileService } from '@services/file.service';
 import { DataService } from '@services/data.service';
+import { GameSet } from '@app/models/game-set.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -25,20 +26,33 @@ export class DownloadGameService {
     const game = (await this.fileService.downloadFile(`${baseUrl}/${fileName}`, fileName, { type: 'json' }))
       ?.data as Game;
 
-    await this.fileService.downloadFile(`${baseUrl}/${gameId}/coin.png`, `${gameId}/coin.png`, { type: 'image' });
+    const promises: Promise<any>[] = [
+      this.fileService.downloadFile(`${baseUrl}/${gameId}/coin.png`, `${gameId}/coin.png`, { type: 'image' })
+    ];
 
     for (const set of game.setList) {
-      await this.fileService.downloadFile(
-        `${baseUrl}/${gameId}/sets/${set.id}/logo.png`,
-        `${gameId}/sets/${set.id}/logo.png`,
-        { type: 'image' }
+      promises.push(
+        this.fileService.downloadFile(
+          `${baseUrl}/${gameId}/sets/${set.id}/logo.png`,
+          `${gameId}/sets/${set.id}/logo.png`,
+          { type: 'image' }
+        )
       );
-      await this.fileService.downloadFile(
-        `${baseUrl}/${gameId}/sets/${set.id}/pack.jpg`,
-        `${gameId}/sets/${set.id}/pack.jpg`,
-        { type: 'image' }
-      );
+
+      if (set.id === 0) {
+        promises.push(this.downloadPromoCards(set, gameId));
+      } else {
+        promises.push(
+          this.fileService.downloadFile(
+            `${baseUrl}/${gameId}/sets/${set.id}/pack.jpg`,
+            `${gameId}/sets/${set.id}/pack.jpg`,
+            { type: 'image' }
+          )
+        );
+      }
     }
+
+    await Promise.all(promises);
 
     return game;
   }
@@ -54,6 +68,19 @@ export class DownloadGameService {
     gameData.push({ id: game.id, name: game.name, url });
     await this.fileService.saveFile('games.json', JSON.stringify(gameData));
     this.dataService.markGamesForRefresh();
+  }
+
+  private async downloadPromoCards(set: GameSet, gameId: string) {
+    const promises = [];
+    for (const card of set?.cardList || []) {
+      promises.push(
+        this.fileService.downloadFile(card.imagePath, `${gameId}/sets/${set?.id}/${card.id}.jpg`, {
+          type: 'image'
+        })
+      );
+    }
+
+    await Promise.all(promises);
   }
 
   async downloadFromUrl(url: string) {

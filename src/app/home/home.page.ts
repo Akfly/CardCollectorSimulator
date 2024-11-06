@@ -187,7 +187,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   async checkIfSetIsDownloaded(item: GridItem) {
     const isDownloaded = await this.dataService.getUserData(`isDownloaded-${this.selectedGame.id}-${item.id}`);
-    item.isDownloaded = isDownloaded === 'true';
+    item.isDownloaded = item.id === 0 || isDownloaded === 'true';
   }
 
   onSetClick(item: GridItem) {

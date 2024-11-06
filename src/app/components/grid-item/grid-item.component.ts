@@ -38,6 +38,7 @@ export class GridItemComponent {
   @Input() name!: string;
   @Input() progress!: string;
   @Input() isDownloaded!: boolean;
+  @Input() hasImageHandling!: boolean;
   @Output() download = new EventEmitter<void>();
   @Output() remove = new EventEmitter<void>();
 
