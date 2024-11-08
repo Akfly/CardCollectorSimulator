@@ -37,7 +37,7 @@
 
     <ion-grid>
       <ion-row>
-        @for (item of gridItems; track item) {
+        @for (item of gridItems; track item.id) {
         <ion-col size="6">
           <app-grid-item
             (click)="onSetClick(item)"
