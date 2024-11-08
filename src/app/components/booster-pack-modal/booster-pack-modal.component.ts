@@ -284,7 +284,8 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
 
   dismissModal() {
     this.modalController.dismiss({
-      cardIdList: this.cardIdList
+      cardIdList: this.cardIdList,
+      wasOpened: this.isBoosterPackOpened
     });
   }
 
