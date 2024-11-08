@@ -245,14 +245,16 @@ export class SetInfoPage implements OnInit, OnDestroy {
     await modal.present();
     const { data } = await modal.onDidDismiss();
 
-    if (data.cardIdList) {
-      if (this.canGetFreePack) {
-        this.lastFreePackDate = DateTime.now();
-        this.dataService.saveUserData(`lastFreePack-${this.gameId}`, this.lastFreePackDate.toISO() as string);
-      } else {
-        this.userMoney -= this.setData.boosterPrice || 0;
-        this.dataService.saveUserData(`userMoney-${this.gameId}`, this.userMoney.toString());
-      }
+    if (!data.cardIdList || !data.wasOpened) {
+      return;
+    }
+
+    if (this.canGetFreePack) {
+      this.lastFreePackDate = DateTime.now();
+      this.dataService.saveUserData(`lastFreePack-${this.gameId}`, this.lastFreePackDate.toISO() as string);
+    } else {
+      this.userMoney -= this.setData.boosterPrice || 0;
+      this.dataService.saveUserData(`userMoney-${this.gameId}`, this.userMoney.toString());
     }
 
     const cardDataPromises: any[] = data.cardIdList.map((cardId: number) =>
