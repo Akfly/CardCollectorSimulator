@@ -15,7 +15,9 @@ import {
   IonCardTitle,
   IonGrid,
   IonCol,
-  IonRow
+  IonRow,
+  IonList,
+  IonToggle
 } from '@ionic/angular/standalone';
 import { DateTime } from 'luxon';
 import { BoosterPackModalComponent } from '@components/booster-pack-modal/booster-pack-modal.component';
@@ -38,6 +40,8 @@ import { unlerp } from '@utils/utils';
   styleUrls: ['./set-info.page.scss'],
   standalone: true,
   imports: [
+    IonToggle,
+    IonList,
     IonRow,
     IonCol,
     IonGrid,
@@ -72,6 +76,7 @@ export class SetInfoPage implements OnInit, OnDestroy {
   timeToNextPack!: string;
   timerInterval!: ReturnType<typeof setInterval>;
   hideUnobtainedCards!: boolean;
+  showAllCards = false;
 
   get canGetFreePack() {
     const diff = DateTime.now().diff(this.lastFreePackDate, ['seconds']).seconds;
