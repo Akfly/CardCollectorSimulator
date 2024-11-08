@@ -11,9 +11,15 @@ import { RubyTextPipe } from '@pipes/ruby-text.pipe';
 })
 export class GridCardComponent {
   @Input() image!: string;
+  @Input() backImage!: string;
   @Input() name!: string;
   @Input() quantity!: number;
   @Input() borderRadius!: string;
+  @Input() showUnobtainedInfo!: boolean;
+
+  get isHidden() {
+    return this.quantity === 0 && !this.showUnobtainedInfo;
+  }
 
   get isDisabled() {
     return this.quantity === 0;

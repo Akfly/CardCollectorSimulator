@@ -1,6 +1,7 @@
 .grid-card {
-  height: 160px;
+  height: 140px;
   width: auto;
+  margin: 0;
   background-color: transparent;
 
   position: relative;
@@ -9,7 +10,7 @@
   cursor: pointer;
 
   .grid-card__img {
-    height: 160px;
+    height: 140px;
 
     &--none {
       filter: grayscale(1) brightness(0.7);

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Filesystem, Encoding } from '@capacitor/filesystem';
 import { ModalController, ToastController } from '@ionic/angular';
 import {
@@ -11,7 +11,8 @@ import {
   IonList,
   IonListHeader,
   IonLabel,
-  IonItem
+  IonItem,
+  IonToggle
 } from '@ionic/angular/standalone';
 import { FileChooser } from '@ionic-native/file-chooser/ngx';
 import { DownloadGameModalComponent } from '@components/download-game-modal/download-game-modal.component';
@@ -26,6 +27,7 @@ import { FileService } from '@services/file.service';
   styleUrls: ['settings.page.scss'],
   standalone: true,
   imports: [
+    IonToggle,
     IonItem,
     IonLabel,
     IonListHeader,
@@ -39,7 +41,9 @@ import { FileService } from '@services/file.service';
   ],
   providers: [ToastController, FileChooser, ModalController]
 })
-export class SettingsPage {
+export class SettingsPage implements OnInit {
+  hideUnobtainedCards!: boolean;
+
   constructor(
     private dataService: DataService,
     private toastController: ToastController,
@@ -48,6 +52,14 @@ export class SettingsPage {
     private fileService: FileService,
     private downloadGameService: DownloadGameService
   ) {}
+
+  ngOnInit() {
+    this.loadSettings();
+  }
+
+  async loadSettings() {
+    this.hideUnobtainedCards = (await this.dataService.getUserData('settings-hideUnobtainedCards')) === 'true';
+  }
 
   async exportSaveFile() {
     const data = await this.dataService.exportUserData();
@@ -126,5 +138,9 @@ export class SettingsPage {
         }
       }
     }
+  }
+
+  async saveSettingValue(key: string, value: any) {
+    await this.dataService.saveUserData(key, value.toString());
   }
 }

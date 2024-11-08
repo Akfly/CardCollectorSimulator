@@ -27,7 +27,8 @@ export class DownloadGameService {
       ?.data as Game;
 
     const promises: Promise<any>[] = [
-      this.fileService.downloadFile(`${baseUrl}/${gameId}/coin.png`, `${gameId}/coin.png`, { type: 'image' })
+      this.fileService.downloadFile(`${baseUrl}/${gameId}/coin.png`, `${gameId}/coin.png`, { type: 'image' }),
+      this.fileService.downloadFile(`${baseUrl}/${gameId}/back.jpg`, `${gameId}/back.jpg`, { type: 'image' })
     ];
 
     for (const set of game.setList) {
