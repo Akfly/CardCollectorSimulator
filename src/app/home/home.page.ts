@@ -128,7 +128,18 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async loadGames() {
-    this.games = (await this.dataService.getGameList()) as { id: number; name: string }[];
+    const promises = [this.dataService.getGameList(), this.dataService.getUserData('lastOpenedGame')];
+    const [games, lastOpenedGame] = await Promise.all(promises);
+    this.games = games as { id: number; name: string }[];
+    const lastOpenedGameId = parseInt(lastOpenedGame as string, 10);
+
+    if (!isNaN(lastOpenedGameId)) {
+      const currentGame = this.games.find(game => game.id === lastOpenedGameId);
+
+      if (currentGame) {
+        this.loadGameDetails(lastOpenedGameId);
+      }
+    }
   }
 
   onGameSelectionChange(event: any) {
@@ -139,12 +150,14 @@ export class HomePage implements OnInit, OnDestroy {
   async loadGameDetails(gameId: number) {
     const loadGamePromises: any[] = [
       this.dataService.getGameDetail(gameId),
-      this.dataService.getUserData(`userMoney-${gameId}`)
+      this.dataService.getUserData(`userMoney-${gameId}`),
+      this.fileService.readFile(`${gameId}/coin.png`, { outputType: 'image' }),
+      this.dataService.saveUserData('lastOpenedGame', gameId.toString())
     ];
-    const [game, userMoney] = await Promise.all(loadGamePromises);
+    const [game, userMoney, currencyImg] = await Promise.all(loadGamePromises);
 
     this.selectedGame = game;
-    this.currencyImg = (await this.fileService.readFile(`${gameId}/coin.png`, { outputType: 'image' })) as string;
+    this.currencyImg = currencyImg;
     this.userMoney = parseInt(userMoney, 10) || 0;
     this.updateGridItems();
   }
