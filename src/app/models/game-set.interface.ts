@@ -9,5 +9,6 @@ export interface GameSet {
   previousSetDate: string;
   boosterPackImageSizePer: number;
   borderRadius: string;
+  boosterPrice?: number;
   boosterRatio: { shared?: { total: number; rarities: { [key: string]: number } }; [key: string]: number | any };
 }

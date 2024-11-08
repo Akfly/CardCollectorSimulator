@@ -84,6 +84,10 @@ export class SetInfoPage implements OnInit, OnDestroy {
     return diff >= SECONDS_TO_NEXT_PACK;
   }
 
+  get canBuyPack() {
+    return this.setData.boosterPrice !== undefined && this.userMoney >= this.setData.boosterPrice;
+  }
+
   get isPromoSet() {
     return this.setId === 0;
   }
@@ -241,9 +245,14 @@ export class SetInfoPage implements OnInit, OnDestroy {
     await modal.present();
     const { data } = await modal.onDidDismiss();
 
-    if (data.cardIdList && this.canGetFreePack) {
-      this.lastFreePackDate = DateTime.now();
-      this.dataService.saveUserData(`lastFreePack-${this.gameId}`, this.lastFreePackDate.toISO() as string);
+    if (data.cardIdList) {
+      if (this.canGetFreePack) {
+        this.lastFreePackDate = DateTime.now();
+        this.dataService.saveUserData(`lastFreePack-${this.gameId}`, this.lastFreePackDate.toISO() as string);
+      } else {
+        this.userMoney -= this.setData.boosterPrice || 0;
+        this.dataService.saveUserData(`userMoney-${this.gameId}`, this.userMoney.toString());
+      }
     }
 
     const cardDataPromises: any[] = data.cardIdList.map((cardId: number) =>

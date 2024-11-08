@@ -17,7 +17,7 @@
       <ion-toggle [checked]="showAllCards" (ionChange)="showAllCards=$event.detail.checked"> Show All </ion-toggle>
     </ion-item>
   </ion-list>
-  @if (setData) { @if (canGetFreePack && !isPromoSet) {
+  @if (setData && !isPromoSet) { @if (canGetFreePack || canBuyPack) {
   <ion-button expand="full" (click)="openPack()">Open Pack</ion-button>
   } @else if (!canGetFreePack) {
   <ion-button expand="full" [disabled]="true">Next Pack in: {{timeToNextPack}}</ion-button>
