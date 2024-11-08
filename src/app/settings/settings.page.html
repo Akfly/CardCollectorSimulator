@@ -10,6 +10,17 @@
 <ion-content>
   <ion-list>
     <ion-list-header lines="full">
+      <ion-label>Visualization</ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-toggle
+        [checked]="hideUnobtainedCards"
+        (ionChange)="saveSettingValue('settings-hideUnobtainedCards', $event.detail.checked)"
+      >
+        Hide unobtained cards
+      </ion-toggle>
+    </ion-item>
+    <ion-list-header lines="full">
       <ion-label>Data management</ion-label>
     </ion-list-header>
     <ion-item button (click)="addGame()">

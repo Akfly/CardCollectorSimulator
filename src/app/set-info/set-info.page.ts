@@ -64,12 +64,14 @@ export class SetInfoPage implements OnInit, OnDestroy {
   game!: Game;
   setData!: GameSet;
   cardsData: { id: number; image: string; quantity: number }[] = [];
+  backImage!: string;
   currencyImg!: string;
   userMoney!: number;
   lastFreePackDate!: DateTime;
   availablePromoCards!: { card: Card; percentage: number }[];
   timeToNextPack!: string;
   timerInterval!: ReturnType<typeof setInterval>;
+  hideUnobtainedCards!: boolean;
 
   get canGetFreePack() {
     const diff = DateTime.now().diff(this.lastFreePackDate, ['seconds']).seconds;
@@ -95,6 +97,7 @@ export class SetInfoPage implements OnInit, OnDestroy {
       this.setId = +params['setId'];
     });
 
+    this.loadSettings();
     this.loadData();
     this.startPackInterval();
   }
@@ -103,20 +106,32 @@ export class SetInfoPage implements OnInit, OnDestroy {
     clearInterval(this.timerInterval);
   }
 
+  async loadSettings() {
+    this.hideUnobtainedCards = (await this.dataService.getUserData('settings-hideUnobtainedCards')) === 'true';
+  }
+
   async loadData() {
     const loadDataPromises: any[] = [
       this.dataService.getGameDetail(this.gameId),
       this.dataService.getUserData(`userMoney-${this.gameId}`),
-      this.dataService.getUserData(`lastFreePack-${this.gameId}`)
+      this.dataService.getUserData(`lastFreePack-${this.gameId}`),
+      this.fileService.readFile(`${this.gameId}/back.jpg`, { outputType: 'image' }),
+      this.fileService.readFile(`${this.gameId}/coin.png`, { outputType: 'image' })
     ];
-    const [game, userMoney, lastFreePack] = await Promise.all(loadDataPromises);
+    const [game, userMoney, lastFreePack, backImage, currencyImg] = await Promise.all(loadDataPromises);
 
     this.game = game;
-    this.currencyImg = (await this.fileService.readFile(`${this.gameId}/coin.png`, { outputType: 'image' })) as string;
+    this.backImage = backImage;
+    this.currencyImg = currencyImg;
     this.userMoney = parseInt(userMoney, 10) || 0;
     this.lastFreePackDate = DateTime.fromISO(lastFreePack ?? '1000-01-01T00:00:00Z');
     this.setData = this.game.setList.find(set => set.id === this.setId) as GameSet;
 
+    await this.loadCardDataInfo();
+    await this.loadPromos();
+  }
+
+  async loadCardDataInfo() {
     const cardDataPromises: any[] = this.setData.cardList.map(card =>
       this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setId}-${card.id}`)
     );
@@ -144,7 +159,9 @@ export class SetInfoPage implements OnInit, OnDestroy {
     });
 
     this.dataService.saveUserData(`setQuantity-${this.gameId}-${this.setData.id}`, setQuantity.toString());
+  }
 
+  async loadPromos() {
     const promoSet = this.game.setList.find(set => set.id === 0);
     const filteredPromos = promoSet?.cardList.filter(card => {
       return (

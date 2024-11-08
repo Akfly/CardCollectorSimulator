@@ -24,9 +24,11 @@
       <ion-col size="auto">
         <app-grid-card
           [image]="cardsData[index].image"
+          [backImage]="backImage"
           [name]="card.name"
           [quantity]="cardsData[index].quantity"
           [borderRadius]="setData.borderRadius"
+          [showUnobtainedInfo]="!hideUnobtainedCards"
           (click)="openCardModal(cardsData[index], card)"
         />
       </ion-col>

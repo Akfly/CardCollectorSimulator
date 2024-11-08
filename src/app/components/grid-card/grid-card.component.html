@@ -3,10 +3,12 @@
     class="grid-card__img"
     [class.grid-card__img--none]="isDisabled"
     [style.borderRadius]="borderRadius"
-    [src]="image"
+    [src]="isHidden ? backImage : image"
   />
-  <ion-card-content class="grid-card__text-area">
-    <ion-card-title class="grid-card__title" [innerHTML]="name | rubyText" />
-    <p class="grid-card__quantity" [class.grid-card__quantity--none]="isDisabled">{{ 'x' + quantity }}</p>
-  </ion-card-content>
+  @if (!isHidden) {
+    <ion-card-content class="grid-card__text-area">
+      <ion-card-title class="grid-card__title" [innerHTML]="name | rubyText" />
+      <p class="grid-card__quantity" [class.grid-card__quantity--none]="isDisabled">{{ 'x' + quantity }}</p>
+    </ion-card-content>
+  }
 </ion-card>
