@@ -7,5 +7,6 @@ export interface Game {
   coinName: string;
   coinImagePath: string;
   setList: GameSet[];
+  cardRarityOrder: string[];
   cardPrices: { normal: { [key: string]: number }; special: { [key: string]: number } };
 }

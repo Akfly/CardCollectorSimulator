@@ -43,6 +43,7 @@ import { FileService } from '@services/file.service';
 })
 export class SettingsPage implements OnInit {
   hideUnobtainedCards!: boolean;
+  showRaritiesInOrder!: boolean;
 
   constructor(
     private dataService: DataService,
@@ -58,7 +59,14 @@ export class SettingsPage implements OnInit {
   }
 
   async loadSettings() {
-    this.hideUnobtainedCards = (await this.dataService.getUserData('settings-hideUnobtainedCards')) === 'true';
+    const promises = [
+      this.dataService.getUserData('settings-hideUnobtainedCards'),
+      this.dataService.getUserData('settings-showRaritiesInOrder')
+    ];
+    const [hideUnobtainedCards, showRaritiesInOrder] = await Promise.all(promises);
+
+    this.hideUnobtainedCards = hideUnobtainedCards === 'true';
+    this.showRaritiesInOrder = showRaritiesInOrder === 'true';
   }
 
   async exportSaveFile() {
