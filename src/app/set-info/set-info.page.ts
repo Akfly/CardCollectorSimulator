@@ -232,7 +232,8 @@ export class SetInfoPage implements OnInit, OnDestroy {
       component: BoosterPackModalComponent,
       componentProps: {
         setData: this.setData,
-        gameId: this.gameId
+        gameId: this.gameId,
+        cardRarityOrder: this.game.cardRarityOrder
       },
       cssClass: 'card-modal'
     });

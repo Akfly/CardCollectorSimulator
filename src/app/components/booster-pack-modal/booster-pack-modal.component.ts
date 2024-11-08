@@ -51,6 +51,7 @@ const MIN_SWIPE_DISTANCE = 150;
 export class BoosterPackModalComponent implements OnInit, AfterViewInit {
   @Input() gameId!: number;
   @Input() setData!: GameSet;
+  @Input() cardRarityOrder!: string[];
 
   cardImages!: string[];
   boosterPackImage!: string;
@@ -80,7 +81,6 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initNewPack();
-    this.cardOutAnimation = this.cardImages.map(() => null);
   }
 
   ngAfterViewInit() {
@@ -88,10 +88,17 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
   }
 
   async initNewPack() {
+    const promises = [
+      this.dataService.getUserData('settings-showRaritiesInOrder'),
+      this.fileService.readFile(`${this.gameId}/sets/${this.setData.id}/pack.jpg`, {
+        outputType: 'image'
+      })
+    ];
+
+    const [showRaritiesInOrderResult, boosterPackImage] = await Promise.all(promises);
+    const showRaritiesInOrder = showRaritiesInOrderResult === 'true';
     this.cardImages = [];
-    this.boosterPackImage = (await this.fileService.readFile(`${this.gameId}/sets/${this.setData.id}/pack.jpg`, {
-      outputType: 'image'
-    })) as string;
+    this.boosterPackImage = boosterPackImage as string;
     this.initialMaxWidth = `${this.setData.boosterPackImageSizePer}%`;
 
     Object.keys(this.setData.boosterRatio).forEach(key => {
@@ -102,6 +109,17 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
       }
     });
 
+    if (showRaritiesInOrder) {
+      this.cardIdList.sort((a, b) => {
+        const cardA = this.setData.cardList.find(card => card.id === a);
+        const cardB = this.setData.cardList.find(card => card.id === b);
+
+        return (
+          this.cardRarityOrder.indexOf(cardA?.rarity as string) - this.cardRarityOrder.indexOf(cardB?.rarity as string)
+        );
+      });
+    }
+
     const imgPromises = this.cardIdList.map(
       cardId =>
         this.fileService.readFile(`${this.gameId}/sets/${this.setData.id}/${cardId}.jpg`, {
@@ -110,6 +128,7 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
     );
 
     this.cardImages = await Promise.all(imgPromises);
+    this.cardOutAnimation = this.cardImages.map(() => null);
   }
 
   /*
@@ -147,7 +166,7 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
   }
 
   initNormalRarityCards(rarity: string) {
-    const cardsOfCurrentRarity = this.setData.cardList.filter(card => card.rarity === rarity);
+    const cardsOfCurrentRarity = this.setData.cardList.filter(card => rarity.includes(card.rarity));
 
     for (let i = 0; i < this.setData.boosterRatio[rarity]; i++) {
       if (!this.addRandomCardToBoosterPack(cardsOfCurrentRarity)) {
