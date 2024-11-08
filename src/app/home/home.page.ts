@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { App } from '@capacitor/app';
-import { Platform, ToastController } from '@ionic/angular';
+import { Platform, ToastController, ViewWillEnter } from '@ionic/angular';
 import {
   IonHeader,
   IonToolbar,
@@ -82,7 +82,7 @@ interface GridItem {
     HeaderCoinComponent
   ]
 })
-export class HomePage implements OnInit, OnDestroy {
+export class HomePage implements OnDestroy, ViewWillEnter {
   title: string = 'Card Collector Simulator';
   games: { id: number; name: string }[] = [];
   selectedGame!: Game;
@@ -103,7 +103,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.initializeBackButtonCustomHandler();
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.loadGames();
     this.getVersionNumber();
   }
