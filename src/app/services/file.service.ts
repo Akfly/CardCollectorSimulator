@@ -52,11 +52,11 @@ export class FileService {
           }
         } catch (mkdirError) {
           console.error('Unable to create directory', mkdirError);
-          return;
+          throw e;
         }
       } else {
         console.error('Unable to read directory', e);
-        return;
+        throw e;
       }
     }
   }
@@ -121,7 +121,7 @@ export class FileService {
     });
 
     if (options?.outputType === 'image') {
-      return await this.convertBlobToBase64(new Blob([result.data]));
+      return result.data;
     }
     return JSON.parse(result.data as string);
   }
@@ -131,7 +131,8 @@ export class FileService {
 
     try {
       if (options.type === 'image') {
-        response = (await lastValueFrom(this.http.get(url, { responseType: 'blob' }))) as Blob;
+        const result = (await lastValueFrom(this.http.get(url, { responseType: 'blob' }))) as Blob;
+        response = await this.convertBlobToBase64(result);
       } else {
         response = (await lastValueFrom(this.http.get(url, { responseType: 'text' }))) as string;
       }
