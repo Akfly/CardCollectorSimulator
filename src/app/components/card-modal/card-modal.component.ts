@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { LoadingController, ModalController } from '@ionic/angular';
 import {
   IonHeader,
   IonToolbar,
@@ -34,6 +34,7 @@ export class CardModalComponent {
 
   constructor(
     private modalController: ModalController,
+    private loadingController: LoadingController,
     private dataService: DataService
   ) {
     addIcons({ close });
@@ -60,20 +61,29 @@ export class CardModalComponent {
   }
 
   async performSellCard(quantity: number) {
-    const cardType = this.card.isSpecial ? 'special' : 'normal';
-    const cardPrice = this.game.cardPrices[cardType][this.card.rarity];
-    const totalEarned = quantity * (isNaN(cardPrice) ? 0 : cardPrice);
-    const currentMoney = parseInt((await this.dataService.getUserData(`userMoney-${this.game.id}`)) || '0', 10);
+    const loading = await this.loadingController.create();
+    await loading.present();
 
-    const promises = [
-      this.dataService.saveUserData(`userMoney-${this.game.id}`, (currentMoney + totalEarned).toString()),
-      this.dataService.saveUserData(
-        `cardQuantity-${this.game.id}-${this.set.id}-${this.card.id}`,
-        (this.totalQuantity - quantity).toString()
-      )
-    ];
+    try {
+      const cardType = this.card.isSpecial ? 'special' : 'normal';
+      const cardPrice = this.game.cardPrices[cardType][this.card.rarity];
+      const totalEarned = quantity * (isNaN(cardPrice) ? 0 : cardPrice);
+      const currentMoney = parseInt((await this.dataService.getUserData(`userMoney-${this.game.id}`)) || '0', 10);
 
-    await Promise.all(promises);
+      const promises = [
+        this.dataService.saveUserData(`userMoney-${this.game.id}`, (currentMoney + totalEarned).toString()),
+        this.dataService.saveUserData(
+          `cardQuantity-${this.game.id}-${this.set.id}-${this.card.id}`,
+          (this.totalQuantity - quantity).toString()
+        )
+      ];
+
+      await Promise.all(promises);
+    } catch (error) {
+      console.error('Error selling the card', error);
+    } finally {
+      await loading.dismiss();
+    }
     this.dismissModal(true);
   }
 

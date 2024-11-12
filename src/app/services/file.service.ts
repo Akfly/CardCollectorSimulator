@@ -113,7 +113,7 @@ export class FileService {
 
         return JSON.parse(options.defaultContent);
       }
-      throw new Error('File does not exist');
+      throw new Error(`File does not exist: ${path}, options: ${options ?? JSON.stringify(options)}`);
     }
 
     const result = await Filesystem.readFile({

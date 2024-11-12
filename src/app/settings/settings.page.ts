@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Filesystem, Encoding } from '@capacitor/filesystem';
-import { ModalController, ToastController } from '@ionic/angular';
+import { LoadingController, ModalController, ToastController } from '@ionic/angular';
 import {
   IonButtons,
   IonHeader,
@@ -49,6 +49,7 @@ export class SettingsPage implements OnInit {
     private dataService: DataService,
     private toastController: ToastController,
     private fileChooser: FileChooser,
+    private loadingController: LoadingController,
     private modalController: ModalController,
     private fileService: FileService,
     private downloadGameService: DownloadGameService
@@ -59,20 +60,31 @@ export class SettingsPage implements OnInit {
   }
 
   async loadSettings() {
-    const promises = [
-      this.dataService.getUserData('settings-hideUnobtainedCards'),
-      this.dataService.getUserData('settings-showRaritiesInOrder')
-    ];
-    const [hideUnobtainedCards, showRaritiesInOrder] = await Promise.all(promises);
+    const loading = await this.loadingController.create();
+    await loading.present();
 
-    this.hideUnobtainedCards = hideUnobtainedCards === 'true';
-    this.showRaritiesInOrder = showRaritiesInOrder === 'true';
+    try {
+      const promises = [
+        this.dataService.getUserData('settings-hideUnobtainedCards'),
+        this.dataService.getUserData('settings-showRaritiesInOrder')
+      ];
+      const [hideUnobtainedCards, showRaritiesInOrder] = await Promise.all(promises);
+
+      this.hideUnobtainedCards = hideUnobtainedCards === 'true';
+      this.showRaritiesInOrder = showRaritiesInOrder === 'true';
+    } catch (e) {
+      console.error('Error loading settings', e);
+    } finally {
+      await loading.dismiss();
+    }
   }
 
   async exportSaveFile() {
-    const data = await this.dataService.exportUserData();
+    const loading = await this.loadingController.create();
+    await loading.present();
 
     try {
+      const data = await this.dataService.exportUserData();
       const result = await this.fileService.saveFile('savefile', data);
 
       // Show a toast message with the directory
@@ -82,11 +94,16 @@ export class SettingsPage implements OnInit {
       });
       await toast.present();
     } catch (e) {
-      console.error('Unable to write file', e);
+      console.error('Unable to export file', e);
+    } finally {
+      await loading.dismiss();
     }
   }
 
   async importSaveFile() {
+    const loading = await this.loadingController.create();
+    await loading.present();
+
     try {
       const uri = await this.fileChooser.open();
 
@@ -114,6 +131,8 @@ export class SettingsPage implements OnInit {
         message: 'Failed to import file'
       });
       await toast.present();
+    } finally {
+      await loading.dismiss();
     }
   }
 
@@ -128,23 +147,32 @@ export class SettingsPage implements OnInit {
   }
 
   async updateGames() {
-    const games = (await this.dataService.getGameList()) as { id: number; name: string; url: string }[];
-    for (const game of games) {
-      if (game.url) {
-        try {
-          this.downloadGameService.downloadFromUrl(game.url);
+    const loading = await this.loadingController.create();
+    await loading.present();
 
-          const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: `${game.name} updated` });
-          await toast.present();
-        } catch (error) {
-          console.error(`Error downloading ${game.name}`, error);
-          const toast = await this.toastController.create({
-            ...DEFAULT_TOAST,
-            message: `Error downloading ${game.name}`
-          });
-          await toast.present();
+    try {
+      const games = (await this.dataService.getGameList()) as { id: number; name: string; url: string }[];
+      for (const game of games) {
+        if (game.url) {
+          try {
+            this.downloadGameService.downloadFromUrl(game.url);
+
+            const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: `${game.name} updated` });
+            await toast.present();
+          } catch (error) {
+            console.error(`Error downloading ${game.name}`, error);
+            const toast = await this.toastController.create({
+              ...DEFAULT_TOAST,
+              message: `Error downloading ${game.name}`
+            });
+            await toast.present();
+          }
         }
       }
+    } catch (error) {
+      console.error('Error updating games', error);
+    } finally {
+      await loading.dismiss();
     }
   }
 
