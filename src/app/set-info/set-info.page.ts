@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { LoadingController, ModalController } from '@ionic/angular';
 import {
   IonHeader,
   IonButtons,
@@ -96,6 +96,7 @@ export class SetInfoPage implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private dataService: DataService,
     private fileService: FileService,
+    private loadingController: LoadingController,
     private modalController: ModalController,
     private cdr: ChangeDetectorRef
   ) {}
@@ -120,24 +121,33 @@ export class SetInfoPage implements OnInit, OnDestroy {
   }
 
   async loadData() {
-    const loadDataPromises: any[] = [
-      this.dataService.getGameDetail(this.gameId),
-      this.dataService.getUserData(`userMoney-${this.gameId}`),
-      this.dataService.getUserData(`lastFreePack-${this.gameId}`),
-      this.fileService.readFile(`${this.gameId}/back.jpg`, { outputType: 'image' }),
-      this.fileService.readFile(`${this.gameId}/coin.png`, { outputType: 'image' })
-    ];
-    const [game, userMoney, lastFreePack, backImage, currencyImg] = await Promise.all(loadDataPromises);
+    const loading = await this.loadingController.create();
+    await loading.present();
 
-    this.game = game;
-    this.backImage = backImage;
-    this.currencyImg = currencyImg;
-    this.userMoney = parseInt(userMoney, 10) || 0;
-    this.lastFreePackDate = DateTime.fromISO(lastFreePack ?? '1000-01-01T00:00:00Z');
-    this.setData = this.game.setList.find(set => set.id === this.setId) as GameSet;
+    try {
+      const loadDataPromises: any[] = [
+        this.dataService.getGameDetail(this.gameId),
+        this.dataService.getUserData(`userMoney-${this.gameId}`),
+        this.dataService.getUserData(`lastFreePack-${this.gameId}`),
+        this.fileService.readFile(`${this.gameId}/back.jpg`, { outputType: 'image' }),
+        this.fileService.readFile(`${this.gameId}/coin.png`, { outputType: 'image' })
+      ];
+      const [game, userMoney, lastFreePack, backImage, currencyImg] = await Promise.all(loadDataPromises);
 
-    await this.loadCardDataInfo();
-    await this.loadPromos();
+      this.game = game;
+      this.backImage = backImage;
+      this.currencyImg = currencyImg;
+      this.userMoney = parseInt(userMoney, 10) || 0;
+      this.lastFreePackDate = DateTime.fromISO(lastFreePack ?? '1000-01-01T00:00:00Z');
+      this.setData = this.game.setList.find(set => set.id === this.setId) as GameSet;
+
+      await this.loadCardDataInfo();
+      await this.loadPromos();
+    } catch (error) {
+      console.error('Error loading data', error);
+    } finally {
+      await loading.dismiss();
+    }
   }
 
   async loadCardDataInfo() {
@@ -260,11 +270,21 @@ export class SetInfoPage implements OnInit, OnDestroy {
     const cardDataPromises: any[] = data.cardIdList.map((cardId: number) =>
       this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setId}-${cardId}`)
     );
-    const cardQuantities = await Promise.all(cardDataPromises);
 
-    data.cardIdList.forEach((cardId: number, index: number) => {
-      this.cardsData.find(card => card.id === cardId)!.quantity = parseInt(cardQuantities[index] || '0', 10);
-    });
+    const loading = await this.loadingController.create();
+    await loading.present();
+
+    try {
+      const cardQuantities = await Promise.all(cardDataPromises);
+
+      data.cardIdList.forEach((cardId: number, index: number) => {
+        this.cardsData.find(card => card.id === cardId)!.quantity = parseInt(cardQuantities[index] || '0', 10);
+      });
+    } catch (error) {
+      console.error('Error updating card quantities', error);
+    } finally {
+      await loading.dismiss();
+    }
 
     const totalCards = this.cardsData.reduce((acc, card) => acc + (card.quantity > 0 ? 1 : 0), 0);
     const totalCardPercentage = totalCards / this.cardsData.length;
@@ -276,16 +296,25 @@ export class SetInfoPage implements OnInit, OnDestroy {
   }
 
   async earnPromos(promosToGet: { card: Card; percentage: number }[]) {
-    let setQuantity = parseInt((await this.dataService.getUserData(`setQuantity-${this.gameId}-0`)) || '0', 10);
+    const loading = await this.loadingController.create();
+    await loading.present();
 
-    promosToGet.forEach(promo => {
-      setQuantity++;
-      this.dataService.saveUserData(`cardQuantity-${this.gameId}-0-${promo.card.id}`, '1');
-    });
+    try {
+      let setQuantity = parseInt((await this.dataService.getUserData(`setQuantity-${this.gameId}-0`)) || '0', 10);
 
-    this.dataService.saveUserData(`setQuantity-${this.gameId}-o`, setQuantity.toString());
+      promosToGet.forEach(promo => {
+        setQuantity++;
+        this.dataService.saveUserData(`cardQuantity-${this.gameId}-0-${promo.card.id}`, '1');
+      });
 
-    this.cdr.markForCheck();
+      this.dataService.saveUserData(`setQuantity-${this.gameId}-o`, setQuantity.toString());
+
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('Error adding promos', error);
+    } finally {
+      await loading.dismiss();
+    }
 
     promosToGet.forEach(async promo => {
       const image = (await this.fileService.readFile(`${this.game.id}/sets/0/${promo.card.id}.jpg`, {

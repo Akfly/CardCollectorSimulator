@@ -4,7 +4,7 @@
   cursor: pointer;
 
   &--disabled {
-    background-color: rgb(20 20 20);
+    filter: grayscale(1) brightness(0.7);
 
     cursor: default;
     pointer-events: none;

@@ -1,6 +1,6 @@
 import { Component, Input, ElementRef, OnInit, AfterViewInit, Renderer2, ChangeDetectorRef } from '@angular/core';
 import { trigger, state, style, animate, transition, keyframes } from '@angular/animations';
-import { ModalController, GestureController, Gesture } from '@ionic/angular';
+import { GestureController, LoadingController, ModalController } from '@ionic/angular';
 import { IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonContent } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { close, key } from 'ionicons/icons';
@@ -70,6 +70,7 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
   constructor(
     private modalController: ModalController,
     private gestureCtrl: GestureController,
+    private loadingController: LoadingController,
     private el: ElementRef,
     private renderer: Renderer2,
     private cdr: ChangeDetectorRef,
@@ -88,47 +89,57 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
   }
 
   async initNewPack() {
-    const promises = [
-      this.dataService.getUserData('settings-showRaritiesInOrder'),
-      this.fileService.readFile(`${this.gameId}/sets/${this.setData.id}/pack.jpg`, {
-        outputType: 'image'
-      })
-    ];
+    const loading = await this.loadingController.create();
+    await loading.present();
 
-    const [showRaritiesInOrderResult, boosterPackImage] = await Promise.all(promises);
-    const showRaritiesInOrder = showRaritiesInOrderResult === 'true';
-    this.cardImages = [];
-    this.boosterPackImage = boosterPackImage as string;
-    this.initialMaxWidth = `${this.setData.boosterPackImageSizePer}%`;
-
-    Object.keys(this.setData.boosterRatio).forEach(key => {
-      if (key.includes('shared')) {
-        this.initSharedRarityCards(this.setData.boosterRatio[key]);
-      } else {
-        this.initNormalRarityCards(key);
-      }
-    });
-
-    if (showRaritiesInOrder) {
-      this.cardIdList.sort((a, b) => {
-        const cardA = this.setData.cardList.find(card => card.id === a);
-        const cardB = this.setData.cardList.find(card => card.id === b);
-
-        return (
-          this.cardRarityOrder.indexOf(cardA?.rarity as string) - this.cardRarityOrder.indexOf(cardB?.rarity as string)
-        );
-      });
-    }
-
-    const imgPromises = this.cardIdList.map(
-      cardId =>
-        this.fileService.readFile(`${this.gameId}/sets/${this.setData.id}/${cardId}.jpg`, {
+    try {
+      const promises = [
+        this.dataService.getUserData('settings-showRaritiesInOrder'),
+        this.fileService.readFile(`${this.gameId}/sets/${this.setData.id}/pack.jpg`, {
           outputType: 'image'
-        }) as Promise<string>
-    );
+        })
+      ];
 
-    this.cardImages = await Promise.all(imgPromises);
-    this.cardOutAnimation = this.cardImages.map(() => null);
+      const [showRaritiesInOrderResult, boosterPackImage] = await Promise.all(promises);
+      const showRaritiesInOrder = showRaritiesInOrderResult === 'true';
+      this.cardImages = [];
+      this.boosterPackImage = boosterPackImage as string;
+      this.initialMaxWidth = `${this.setData.boosterPackImageSizePer}%`;
+
+      Object.keys(this.setData.boosterRatio).forEach(key => {
+        if (key.includes('shared')) {
+          this.initSharedRarityCards(this.setData.boosterRatio[key]);
+        } else {
+          this.initNormalRarityCards(key);
+        }
+      });
+
+      if (showRaritiesInOrder) {
+        this.cardIdList.sort((a, b) => {
+          const cardA = this.setData.cardList.find(card => card.id === a);
+          const cardB = this.setData.cardList.find(card => card.id === b);
+
+          return (
+            this.cardRarityOrder.indexOf(cardA?.rarity as string) -
+            this.cardRarityOrder.indexOf(cardB?.rarity as string)
+          );
+        });
+      }
+
+      const imgPromises = this.cardIdList.map(
+        cardId =>
+          this.fileService.readFile(`${this.gameId}/sets/${this.setData.id}/${cardId}.jpg`, {
+            outputType: 'image'
+          }) as Promise<string>
+      );
+
+      this.cardImages = await Promise.all(imgPromises);
+      this.cardOutAnimation = this.cardImages.map(() => null);
+    } catch (e) {
+      console.error('Error initializing booster pack', e);
+    } finally {
+      await loading.dismiss();
+    }
   }
 
   /*
@@ -290,29 +301,38 @@ export class BoosterPackModalComponent implements OnInit, AfterViewInit {
   }
 
   async openBoosterPack() {
-    this.isBoosterPackOpened = true;
+    const loading = await this.loadingController.create();
+    await loading.present();
 
-    const cardPromises = this.cardIdList.map(cardId =>
-      this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setData.id}-${cardId}`)
-    );
-    const responses = await Promise.all(cardPromises);
-    let setQuantity = parseInt(
-      (await this.dataService.getUserData(`setQuantity-${this.gameId}-${this.setData.id}`)) || '0',
-      10
-    );
+    try {
+      this.isBoosterPackOpened = true;
 
-    this.cardIdList.forEach((cardId, index) => {
-      const cardQuantity = parseInt(responses[index] || '0', 10);
-      this.dataService.saveUserData(
-        `cardQuantity-${this.gameId}-${this.setData.id}-${cardId}`,
-        (cardQuantity + 1).toString()
+      const cardPromises = this.cardIdList.map(cardId =>
+        this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setData.id}-${cardId}`)
+      );
+      const responses = await Promise.all(cardPromises);
+      let setQuantity = parseInt(
+        (await this.dataService.getUserData(`setQuantity-${this.gameId}-${this.setData.id}`)) || '0',
+        10
       );
 
-      if (cardQuantity === 0) {
-        setQuantity++;
-      }
-    });
+      this.cardIdList.forEach((cardId, index) => {
+        const cardQuantity = parseInt(responses[index] || '0', 10);
+        this.dataService.saveUserData(
+          `cardQuantity-${this.gameId}-${this.setData.id}-${cardId}`,
+          (cardQuantity + 1).toString()
+        );
 
-    this.dataService.saveUserData(`setQuantity-${this.gameId}-${this.setData.id}`, setQuantity.toString());
+        if (cardQuantity === 0) {
+          setQuantity++;
+        }
+      });
+
+      this.dataService.saveUserData(`setQuantity-${this.gameId}-${this.setData.id}`, setQuantity.toString());
+    } catch (e) {
+      console.error('Error opening booster pack', e);
+    } finally {
+      await loading.dismiss();
+    }
   }
 }

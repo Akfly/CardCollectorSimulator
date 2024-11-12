@@ -2,7 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { App } from '@capacitor/app';
-import { Platform, ToastController, ViewWillEnter } from '@ionic/angular';
+import { LoadingController, Platform, ToastController, ViewWillEnter } from '@ionic/angular';
 import {
   IonHeader,
   IonToolbar,
@@ -97,7 +97,8 @@ export class HomePage implements OnDestroy, ViewWillEnter {
     private dataService: DataService,
     private fileService: FileService,
     private platform: Platform,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private loadingController: LoadingController
   ) {
     addIcons({ settingsOutline });
     this.initializeBackButtonCustomHandler();
@@ -128,17 +129,26 @@ export class HomePage implements OnDestroy, ViewWillEnter {
   }
 
   async loadGames() {
-    const promises = [this.dataService.getGameList(), this.dataService.getUserData('lastOpenedGame')];
-    const [games, lastOpenedGame] = await Promise.all(promises);
-    this.games = games as { id: number; name: string }[];
-    const lastOpenedGameId = parseInt(lastOpenedGame as string, 10);
+    const loading = await this.loadingController.create();
+    await loading.present();
 
-    if (!isNaN(lastOpenedGameId)) {
-      const currentGame = this.games.find(game => game.id === lastOpenedGameId);
+    try {
+      const promises = [this.dataService.getGameList(), this.dataService.getUserData('lastOpenedGame')];
+      const [games, lastOpenedGame] = await Promise.all(promises);
+      this.games = games as { id: number; name: string }[];
+      const lastOpenedGameId = parseInt(lastOpenedGame as string, 10);
 
-      if (currentGame) {
-        this.loadGameDetails(lastOpenedGameId);
+      if (!isNaN(lastOpenedGameId)) {
+        const currentGame = this.games.find(game => game.id === lastOpenedGameId);
+
+        if (currentGame) {
+          this.loadGameDetails(lastOpenedGameId);
+        }
       }
+    } catch (error) {
+      console.error('Error loading games', error);
+    } finally {
+      await loading.dismiss();
     }
   }
 
@@ -214,6 +224,9 @@ export class HomePage implements OnDestroy, ViewWillEnter {
   async onDownloadSetClick(item: GridItem) {
     const set = this.selectedGame.setList.find(s => s.id === item.id);
 
+    const loading = await this.loadingController.create();
+    await loading.present();
+
     try {
       const promises = [];
       for (const card of set?.cardList || []) {
@@ -237,11 +250,16 @@ export class HomePage implements OnDestroy, ViewWillEnter {
       console.error('Error downloading set', error);
       const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: `Error downloading ${item.name}` });
       await toast.present();
+    } finally {
+      await loading.dismiss();
     }
   }
 
   async onRemoveSetClick(item: GridItem) {
     const set = this.selectedGame.setList.find(s => s.id === item.id);
+
+    const loading = await this.loadingController.create();
+    await loading.present();
 
     try {
       const promises = set?.cardList.map(card =>
@@ -261,6 +279,8 @@ export class HomePage implements OnDestroy, ViewWillEnter {
       console.error('Error removing set', error);
       const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: `Error removing ${item.name}` });
       await toast.present();
+    } finally {
+      await loading.dismiss();
     }
   }
 

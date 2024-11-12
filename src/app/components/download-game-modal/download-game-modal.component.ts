@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ModalController, ToastController } from '@ionic/angular';
+import { LoadingController, ModalController, ToastController } from '@ionic/angular';
 import {
   IonHeader,
   IonToolbar,
@@ -40,6 +40,7 @@ export class DownloadGameModalComponent {
   constructor(
     private modalController: ModalController,
     private toastController: ToastController,
+    private loadingController: LoadingController,
     private downloadGameService: DownloadGameService
   ) {
     addIcons({ close });
@@ -57,8 +58,11 @@ export class DownloadGameModalComponent {
   }
 
   async addGame() {
+    const loading = await this.loadingController.create();
+    await loading.present();
+
     try {
-      this.downloadGameService.downloadFromUrl(this.gameUrl);
+      await this.downloadGameService.downloadFromUrl(this.gameUrl);
 
       const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: 'Game added successfully' });
       await toast.present();
@@ -66,6 +70,8 @@ export class DownloadGameModalComponent {
       console.error('Error downloading the game', error);
       const toast = await this.toastController.create({ ...DEFAULT_TOAST, message: 'Error downloading the game' });
       await toast.present();
+    } finally {
+      await loading.dismiss();
     }
 
     this.dismissModal();

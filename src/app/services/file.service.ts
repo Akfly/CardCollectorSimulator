@@ -50,9 +50,11 @@ export class FileService {
           if (path === DEFAULT_DIRECTORY) {
             this.isDirectoryChecked = true;
           }
-        } catch (mkdirError) {
-          console.error('Unable to create directory', mkdirError);
-          throw e;
+        } catch (mkdirError: any) {
+          if (!mkdirError.message?.includes('Current directory does already exist')) {
+            console.error('Unable to create directory', mkdirError);
+            throw e;
+          }
         }
       } else {
         console.error('Unable to read directory', e);
@@ -111,7 +113,7 @@ export class FileService {
 
         return JSON.parse(options.defaultContent);
       }
-      throw new Error('File does not exist');
+      throw new Error(`File does not exist: ${path}, options: ${options ?? JSON.stringify(options)}`);
     }
 
     const result = await Filesystem.readFile({
