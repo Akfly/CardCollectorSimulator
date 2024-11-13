@@ -29,7 +29,7 @@
       cardsData[index].quantity > 0)) {
       <ion-col size="auto">
         <app-grid-card
-          [image]="cardsData[index].image"
+          [image]="cardsData[index].image.length > 0 ? cardsData[index].image : backImage"
           [backImage]="backImage"
           [name]="card.name"
           [quantity]="cardsData[index].quantity"
