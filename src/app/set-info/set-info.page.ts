@@ -45,9 +45,6 @@ import { unlerp } from '@utils/utils';
     IonRow,
     IonCol,
     IonGrid,
-    IonCardTitle,
-    IonCardContent,
-    IonCard,
     IonItem,
     IonButton,
     IonContent,
@@ -127,17 +124,15 @@ export class SetInfoPage implements OnInit, OnDestroy {
     try {
       const loadDataPromises: any[] = [
         this.dataService.getGameDetail(this.gameId),
-        this.dataService.getUserData(`userMoney-${this.gameId}`),
         this.dataService.getUserData(`lastFreePack-${this.gameId}`),
         this.fileService.readFile(`${this.gameId}/back.jpg`, { outputType: 'image' }),
         this.fileService.readFile(`${this.gameId}/coin.png`, { outputType: 'image' })
       ];
-      const [game, userMoney, lastFreePack, backImage, currencyImg] = await Promise.all(loadDataPromises);
+      const [game, lastFreePack, backImage, currencyImg] = await Promise.all(loadDataPromises);
 
       this.game = game;
       this.backImage = backImage;
       this.currencyImg = currencyImg;
-      this.userMoney = parseInt(userMoney, 10) || 0;
       this.lastFreePackDate = DateTime.fromISO(lastFreePack ?? '1000-01-01T00:00:00Z');
       this.setData = this.game.setList.find(set => set.id === this.setId) as GameSet;
 
@@ -151,33 +146,21 @@ export class SetInfoPage implements OnInit, OnDestroy {
   }
 
   async loadCardDataInfo() {
-    const cardDataPromises: any[] = this.setData.cardList.map(card =>
-      this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setId}-${card.id}`)
-    );
-    const cardImagePromises: any[] = this.setData.cardList.map(card =>
-      this.fileService.readFile(`${this.gameId}/sets/${this.setId}/${card.id}.jpg`, { outputType: 'image' })
-    );
-    const [cardQuantities, imagesResponse] = await Promise.all([
-      Promise.all(cardDataPromises),
-      Promise.all(cardImagePromises)
-    ]);
-    let setQuantity = 0;
-
     this.cardsData = this.setData.cardList.map((card, index) => {
-      const cardQuantity = parseInt(cardQuantities[index] || '0', 10);
-
-      if (cardQuantity) {
-        setQuantity++;
-      }
-
       return {
         id: card.id,
-        image: imagesResponse[index],
-        quantity: cardQuantity
+        image: '',
+        quantity: 0
       };
     });
 
-    this.dataService.saveUserData(`setQuantity-${this.gameId}-${this.setData.id}`, setQuantity.toString());
+    await this.refreshData();
+
+    this.cardsData.forEach(async (card, index) => {
+      card.image = (await this.fileService.readFile(`${this.gameId}/sets/${this.setId}/${card.id}.jpg`, {
+        outputType: 'image'
+      })) as string;
+    });
   }
 
   async loadPromos() {
@@ -214,6 +197,36 @@ export class SetInfoPage implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  async refreshData() {
+    const loading = await this.loadingController.create();
+    await loading.present();
+    try {
+      const userMoney = await this.dataService.getUserData(`userMoney-${this.gameId}`);
+      this.userMoney = parseInt(userMoney ?? '', 10) || 0;
+      const cardDataPromises: any[] = this.cardsData.map(card =>
+        this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setId}-${card.id}`)
+      );
+      const cardQuantities = await Promise.all(cardDataPromises);
+      let setQuantity = 0;
+
+      this.cardsData.forEach((card, index: number) => {
+        card!.quantity = parseInt(cardQuantities[index] || '0', 10);
+
+        if (card.quantity > 0) {
+          setQuantity++;
+        }
+      });
+
+      this.dataService.saveUserData(`setQuantity-${this.gameId}-${this.setData.id}`, setQuantity.toString());
+    } catch (error) {
+      console.error('Error updating card quantities', error);
+    } finally {
+      await loading.dismiss();
+    }
+
+    this.cdr.markForCheck();
+  }
+
   async openCardModal(cardData: { image: string; quantity: number }, card: Card) {
     if (cardData.quantity <= 0) {
       return;
@@ -236,8 +249,7 @@ export class SetInfoPage implements OnInit, OnDestroy {
     const { data } = await modal.onDidDismiss();
 
     if (data === 'sold') {
-      await this.loadData();
-      this.cdr.markForCheck();
+      await this.refreshData();
     }
   }
 
@@ -267,24 +279,7 @@ export class SetInfoPage implements OnInit, OnDestroy {
       this.dataService.saveUserData(`userMoney-${this.gameId}`, this.userMoney.toString());
     }
 
-    const cardDataPromises: any[] = data.cardIdList.map((cardId: number) =>
-      this.dataService.getUserData(`cardQuantity-${this.gameId}-${this.setId}-${cardId}`)
-    );
-
-    const loading = await this.loadingController.create();
-    await loading.present();
-
-    try {
-      const cardQuantities = await Promise.all(cardDataPromises);
-
-      data.cardIdList.forEach((cardId: number, index: number) => {
-        this.cardsData.find(card => card.id === cardId)!.quantity = parseInt(cardQuantities[index] || '0', 10);
-      });
-    } catch (error) {
-      console.error('Error updating card quantities', error);
-    } finally {
-      await loading.dismiss();
-    }
+    await this.refreshData();
 
     const totalCards = this.cardsData.reduce((acc, card) => acc + (card.quantity > 0 ? 1 : 0), 0);
     const totalCardPercentage = totalCards / this.cardsData.length;
